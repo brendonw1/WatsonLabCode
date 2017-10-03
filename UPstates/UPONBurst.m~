@@ -1,0 +1,36 @@
+function UPONBurst (basepath,basename)
+
+if  ~exist('basepath','var')
+    [~,basename,~] = fileparts(cd);basepath = cd;
+end
+
+burstcutoff = 0.015;%15ms
+
+%% UP states
+load(fullfile(basepath,'UPstates',[basename '_UPSpikeStatsE.mat']))
+load(fullfile(basepath,'UPstates',[basename '_UPSpikeStatsI.mat']))
+
+% Coefficient of variation of E and I populations
+Se = isse.S;
+Si = issi.S;
+ints = isse.ints;
+bincentertimes = mean(StartEnd(ints,'s'),2);
+for a = 1:length(length(ints))
+    thisSe = Restrict(Se,subset(binInts,a));
+    BIE(a,:) = BurstIndex_TsdArray(thisSe,burstcutoff);
+    thisSi = Restrict(Si,subset(binInts,a));
+    BII(a,:) = BurstIndex_TsdArray(thisSi,burstcutoff);
+%     if rem(a,100)==0
+%         disp(a)
+%     end
+end
+MBIE = nanmean(BIE,2);%mean of BI for E cells for each timebin
+MBII = nanmean(BII,2);%mean of BI for E cells for each timebin
+
+
+%% save
+UPONCovEI = v2struct(
+
+PerUPCoVE,PerUPCoVI,PerUPEI,PerUPEIZ,UPer,UPir,...
+    PerONCoVE,PerONCoVI,PerONEI,PerONEIZ,ONer,ONir);
+save(fullfile(basepath,'UPstates',[basename '_UPONCovEI']),'UPONCovEI')

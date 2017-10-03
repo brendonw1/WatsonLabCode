@@ -1,0 +1,30 @@
+function copyXmlFileToMatchAllDats
+% Designed so an xml file which is chosen may be copied to make one with a matching
+% name for each dat file in the subdirectories of a chosen folder.
+
+[FileName,PathName,FilterIndex] = uigetfile('.xml');
+sourcepath = fullfile(PathName,FileName);
+
+destdirpath = uigetdir ('/brendon2', 'Indicate superdirectory containing all dats to make .xmls for'); 
+answer = questdlg('overwrite existing .xml files in this directory','Overwrite?','No');
+
+destlist = listallsubdirfiles(destdirpath);%get all files in all subdirectories of the specified destination area
+
+
+for a = 1:length(destlist);
+    [pathstr, name, ext] = fileparts(destlist{a});
+    if strcmp(lower(ext),'.dat')
+        copyxml = 1;
+        potentialxmlname = fullfile(pathstr,[name,'.xml']);
+        for b = 1:length(destlist)
+            if strcmp(potentialxmlfile,destlist{b});
+                if ~answer
+                    copyxml = 0;
+                end
+            end
+            if copyxml
+                copy (sourcepath, fullfile(pathstr,FileName));
+            end
+        end
+    end
+end

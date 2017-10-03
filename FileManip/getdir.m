@@ -1,0 +1,1 @@
+function d=getdir(pathname)%outputs a struct with info about what is in a directoryif ~exist('pathname','var');    pathname = cd;endd=dir(pathname);d=d(3:end);for a = length(d):-1:1;    if strcmp(d(a).name,'.DS_Store')        d(a) = [];    endend

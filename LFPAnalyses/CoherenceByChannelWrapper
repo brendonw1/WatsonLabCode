@@ -1,0 +1,29 @@
+function CoherenceByChannelWrapper(basepath,basename)
+% Uses Dan Levenstein's LFPPairMat to do channel-wise comparisons of
+% coherence in arbitrary frequency range using one of various measures.
+% See LFPPairMat documentation for more info.  This can be downloaded from
+% github at https://github.com/dlevenstein/DLevenstein-Code.
+% 
+% Brendon Watson 2016
+
+%% Constants and Parameters
+freqrange = 'gamma';
+metric = 'filtcorr';
+
+%% Get channel list... all channels in .xml spike groups
+if ~exist('basepath','var')
+    [~,basename] = fileparts(cd);
+    basepath = cd;
+end
+
+Par = LoadPar(fullfile(basepath,[basename '.xml']));
+
+chanlist = [];
+for a = 1:length(Par.SpkGrps);
+    chanlist = cat(2,chanlist,Par.SpkGrps(a).Channels);
+end
+
+
+%% Call base function
+[corrmat,sites] = LFPPairMat('frange','gamma','metric','filtcorr','channels',chanlist);
+

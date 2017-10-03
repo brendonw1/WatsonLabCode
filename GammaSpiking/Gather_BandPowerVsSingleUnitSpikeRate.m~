@@ -1,0 +1,35 @@
+function Gather_BandPowerVsSingleUnitSpikeRate(folderpath)
+
+
+if ~exist('folderpath','var')
+    folderpath = cd;
+end
+
+%% Get list of datasets
+d = getdir(folderpath);
+names = {};
+dirs = {};
+for count = 1:length(d);
+    if d(count).isdir
+        names{end+1} = d(count).name;
+        dirs{end+1} = fullfile(folderpath,d(count).name);
+    end
+end
+
+%% For each data folder
+for fidx = 2:length(names)
+    basename = names{fidx};
+    basepath = dirs{fidx};
+    
+    load(fullfile(basepath,[basename '_BandPowerVsSingleUnitSpikeRateData']))
+    t = BandPowerVsSingleUnitSpikeRateData;clear BandPowerVsSingleUnitSpikeRateData
+    if isfield(t,'stateslist')
+        stateslist = t.stateslist;
+    else
+        stateslist = {'AllT','Wake','NREM','REM','MA'};
+    end
+    %remove broadband, save separately
+    
+    %
+    1;
+end

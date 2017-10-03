@@ -1,0 +1,6 @@
+%% Backup c3po to packmouse
+SyncSupradirDataFolders('/mnt/Amplipex4D/BW/c3po','/mnt/packmouse/userdirs/brendon/c3poRaw');
+SyncSupradirDataFolders('/mnt/Amplipex4F/BW/c3po','/mnt/packmouse/userdirs/brendon/c3poRaw');
+SyncSupradirDataFolders('/mnt/Amplipex7D/BW/c3po','/mnt/packmouse/userdirs/brendon/c3poRaw');
+SyncSupradirDataFolders('/mnt/Amplipex7G/BW/c3po','/mnt/packmouse/userdirs/brendon/c3poRaw');
+SyncSupradirDataFolders('/mnt/SurgeryE/BW/c3po','/mnt/packmouse/userdirs/brendon/c3poRaw');

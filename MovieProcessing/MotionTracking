@@ -1,0 +1,12 @@
+filename = 'Basler_acA1280-60gc__21790606__20160202_062919760.avi';
+cd /mnt/RawData/c3po/c3po_160202/
+
+[video,modalimage] = BkgndSubtractResampledMovie(filename,0.1);
+F = MovieMatrixToMatlabMovie(video);
+
+video = BinaryThresholdDiffMovie(video);
+for a = 1:size(video,3);
+    [i,j] = find(video(:,:,a));
+    xy = centroid([i j]);
+end
+

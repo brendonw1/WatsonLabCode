@@ -1,0 +1,114 @@
+function CoeffVarWSSnippets = WSSnippets_PopCoeffVar(basepath,basename,ep1,ep2,plotting,mode)
+% Gathers vector traces and medians of spiking population coefficients of 
+% variation from timespans around Wake-Sleep Episodes. 
+% Available inputs to specify times around WS:
+%         - '5mIn' - gather first 5min IN sleep vs last 5 IN sleep
+%         - '5mInSWS' - gather first 5min SWS min vs last 5 SWS min
+%         - '5mOut' - gather last 5min wake BEFORE sleep vs first 5 min wake AFTER sleep
+%         - 'FLSWS' - gather first vs last SWS episodes
+%         - '13SWS' - gather SWS from vs vs last third of sleep
+%         - 'WakeB' - Look at wake before 
+%         - 'WSSleep' - Look at all of sleep in a given WS episode
+%         - 'WSSWS' - Look at all SWS in a given WS episode
+%         - 'WWSREM' - Look at all REM in a given WS episode
+%
+% mode input can be either tsd or singlepoint.  Single point is default and
+%     gathers strength of each synapse within the given epoch.  tsd creates a
+%     timeseries of points, one for each minute, based on
+%     _SpikeTransferPer1MinuteE.
+% Brendon Watson 2015
+
+warning off
+
+
+if ~exist('basepath','var')
+    [~,basename,~] = fileparts(cd);
+    basepath = cd;
+end
+if ~exist('ep1','var')
+    ep1 = 'FLSWS';
+end
+if ~exist('ep2','var')
+    ep2 = '[]';
+end
+
+if isnumeric(ep1)
+    ep1str = inputdlg('Enter string to depict snippet timing');
+else
+    ep1str = ep1;
+end
+
+if ~exist('plotting','var')
+    plotting = 0;
+end
+if ~exist('mode','var')
+    mode = 'singlepoint';
+end
+
+warning off
+mkdir(fullfile(basepath,'WSSnippets'))
+mkdir(fullfile(basepath,'WSSnippets',ep1str))
+warning on
+
+typenames = {'e','i'};
+load(fullfile(basepath,[basename '_SpikeTransferPer1MinuteAll.mat']));
+
+%% Extract
+switch mode
+    case 'tsd'
+        t = load(fullfile(basepath,[basename '_SpikingCoeffVariation.mat']));
+    case 'singlepoint'
+        ints = load(fullfile(basepath,[basename '_WSRestrictedIntervals']));
+        WSEpisodes = ints.WakeSleep;
+        [ep1,ep2] = PrePostIntervalTimes(WSEpisodes,ints,ep1,ep2,basepath,basename);%gives intervalsets for each WS
+
+        load(fullfile(basepath,[basename '_SSubtypes.mat']),'Se','Si');
+
+        for a = 1:length(ep1)%loop through WS Episodes
+            e_pre = Rate(Restrict(Se,ep1{a}));
+            e_pre(e_pre<=0) = min(e_pre(e_pre>0));
+            CoVE_pre = std(e_pre)/mean(e_pre);
+            [~,~,~,~,CoVlE_pre] = lognormstats(e_pre);
+            CoVlE_pre = CoVlE_pre/log
+            SDE_pre = std(e_pre);
+            SDlE_pre = std(log10(e_pre));
+
+            e_post = Rate(Restrict(Se,ep2{a}));
+            e_post(e_post<=0) = min(e_post(e_post>0));
+            CoVE_post = std(e_post)/mean(e_post);
+            [~,~,~,~,CoVlE_post] = lognormstats(e_post);
+            SDE_post = std(e_post);
+            SDlE_post = std(log10(e_post));
+
+            if length(Si)<1
+                CoVI_pre = [];
+                CoVlI_pre = [];
+                CoVI_post = [];
+                CoVlI_post = [];
+            else
+                i_pre = Rate(Restrict(Si,ep1{a}));
+                i_pre(i_pre<=0) = min(i_pre(i_pre>0));
+                CoVI_pre = std(i_pre)/mean(i_pre);
+                [~,~,~,~,CoVlI_pre] = lognormstats(i_pre);
+                SDI_pre = std(e_pre);
+                SDlI_pre = std(log10(e_pre));
+
+                i_post = Rate(Restrict(Si,ep2{a}));
+                i_post(i_post<=0) = min(i_post(i_post>0));
+                CoVI_post = std(i_post)/mean(i_post);
+                [~,~,~,~,CoVlI_post] = lognormstats(i_post);
+                SDI_post = std(i_post);
+                SDlI_post = std(log10(i_post));
+            end
+        end
+        numWS = length(ep1);
+        CoeffVarWSSnippets = v2struct(ep1str,numWS,...
+            CoVE_pre,CoVlE_pre,CoVI_pre,CoVlI_pre,...
+            CoVE_post,CoVlE_post,CoVI_post,CoVlI_post,...
+            SDE_pre,SDE_post,SDI_pre,SDI_post);
+end
+
+%% saving data
+savefilename = fullfile(basepath,'WSSnippets',ep1str,[basename '_CoeffVarWSSnippets']);
+save(savefilename,'CoeffVarWSSnippets')
+
