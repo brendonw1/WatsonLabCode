@@ -1,4 +1,4 @@
-function BandPowerVsSingleUnitSpikeRateBinned_Shuffle(basepath,nshuffs,plotting)
+function BandPowerVsSingleUnitSpikeRateBinned_ShuffleLocal(basepath,nshuffs,plotting)
 % Individual cells correlated against various frequency bands.  Each cell
 % vs each band.  Also population and broadband data used too.
 % Brendon Watson 2017
@@ -21,6 +21,10 @@ if ~exist('basepath','var')
     basepath = cd;
 end
 basename = bz_BasenameFromBasepath(basepath);
+
+if ~exist('localitywidth','var')
+    localitywidth = 10;
+end
 
 if ~exist('nshuffs','var')
     nshuffs = 200;
@@ -218,6 +222,7 @@ binwidthsecs = 1;
             end
             
             %shuffle data
+%             localitywidth = 10;%how wide to shuffle relative to frequency
             ct = {'E','I'};
             for ctidx = 1:2
                 tct = ct{ctidx};
@@ -225,8 +230,15 @@ binwidthsecs = 1;
                 if ~isempty(tgm)
                     NDataStreams = size(tgm,2);
                     for shuffidx = 1:nshuffs
-                        [~,idxs] = sort(rand((size(tgm))));
-                        tsgm = tgm(idxs);
+                        %shuffle just the LFP powers - keep spike bins
+                        %same... so their relative relationship changes
+                        tshuff = round(localitywidth*rand-localitywidth/2);
+                        tsgm = tgm;
+                        tsgm(:,1) = circshift(tsgm(:,1),tshuff);
+                        
+                        % total randomization
+%                         [~,idxs] = sort(rand((size(tgm))));
+%                         tsgm = tgm(idxs);
                         tShuffCorr = corr(tsgm);
                         tShuffCorr(find(bwdiag(length(tShuffCorr)))) = 0;%zero the diag
 
@@ -300,9 +312,9 @@ for stidx = 1:length(stateslist);
         eval(['BandPowerVsSingleUnitSpikeRateData_ShuffledRs.rShuff_Cells' tct tst ' = rShuff_Cells' tct tst ';'])
     end
 end
-save(fullfile(basepath,[basename '_BandPowerVsSingleUnitSpikeRateData_ShuffledGeneralMatrices']),'BandPowerVsSingleUnitSpikeRateData_ShuffledGeneralMatrices','-v7.3')
-save(fullfile(basepath,[basename '_BandPowerVsSingleUnitSpikeRateData_ShuffledCorrs']),'BandPowerVsSingleUnitSpikeRateData_ShuffledCorrs','-v7.3')
-save(fullfile(basepath,[basename '_BandPowerVsSingleUnitSpikeRateData_ShuffledRs']),'BandPowerVsSingleUnitSpikeRateData_ShuffledRs','-v7.3')
+save(fullfile(basepath,[basename '_BandPowerVsSingleUnitSpikeRateData_ShuffledGeneralMatrices_Local']),'BandPowerVsSingleUnitSpikeRateData_ShuffledGeneralMatrices','-v7.3')
+save(fullfile(basepath,[basename '_BandPowerVsSingleUnitSpikeRateData_ShuffledCorrs_Local']),'BandPowerVsSingleUnitSpikeRateData_ShuffledCorrs','-v7.3')
+save(fullfile(basepath,[basename '_BandPowerVsSingleUnitSpikeRateData_ShuffledRs_Local']),'BandPowerVsSingleUnitSpikeRateData_ShuffledRs','-v7.3')
 
 %     ExampleAllTSePop, ExampleWakeSePop, ExampleNremSePop,ExampleRemSePop,...
 %     ExampleMaSePop,

@@ -1,4 +1,4 @@
-function BandPowerVsSingleUnitSpikeRateBinned_Shuffle(basepath,nshuffs,plotting)
+function BandPowerVsSingleUnitSpikeRateBinned_ShuffleLocal(basepath,nshuffs,plotting)
 % Individual cells correlated against various frequency bands.  Each cell
 % vs each band.  Also population and broadband data used too.
 % Brendon Watson 2017
@@ -169,6 +169,11 @@ binwidthsecs = 1;
         end
     end
     %% data by bands
+    for stidx = 1:length(stateslist)%for each state
+        tst = stateslist{stidx};
+        eval([tst 'pbds = [];'])
+    end
+    
     for bandidx = 1:length(bandmeans)+1
         if bandidx<=length(bandmeans)%if one of the bands, just gather power for that band
             tbandpower = amp(:,bandidx);
@@ -187,51 +192,66 @@ binwidthsecs = 1;
             eval([tst 'PowerbandTsd = MakeSummedValQfromS(bandpowertsdArray,' tst 'bins);'])
             eval([tst 'PowerbandData = Data(' tst 'PowerbandTsd);'])
 
-            % make final matrices for correlations
-            eval(['E' tst 'GeneralMatrix = cat(2,' tst 'PowerbandData,' tst 'PopSeBinData,EUnit' tst 'Rates{binidx}'');'])
-            eval(['I' tst 'GeneralMatrix = cat(2,' tst 'PowerbandData,' tst 'PopSiBinData,IUnit' tst 'Rates{binidx}'');'])
+            %collect powerbanddatas for cross-frequecy shuffles
+            eval([tst 'pbds (:,end+1) = ' tst 'PowerbandData;'])
+            
+%             % make final matrices for correlations
+%             eval(['E' tst 'GeneralMatrix = cat(2,' tst 'PowerbandData,' tst 'PopSeBinData,EUnit' tst 'Rates{binidx}'');'])
+%             eval(['I' tst 'GeneralMatrix = cat(2,' tst 'PowerbandData,' tst 'PopSiBinData,IUnit' tst 'Rates{binidx}'');'])
+% 
+%             
+%             % correlate
+%             eval(['tgmE = E' tst 'GeneralMatrix;']);
+%             eval(['tgmI = I' tst 'GeneralMatrix;']);
+%             
+%             % Real data
+%             if ~isempty(tgmE)
+%                 eval(['rE' tst ' = corr(E' tst 'GeneralMatrix);'])
+%                 eval(['rE' tst '(find(bwdiag(length(rE' tst ')))) = 0;'])%zero the diag
+%                 eval(['r_AllE' tst '(bandidx,binidx) = rE' tst '(1,2);'])
+%                 eval(['r_CellsE' tst '(bandidx,:,binidx) = rE' tst '(1,3:end);'])
+%             else
+%                 eval(['rE' tst ' = nan;'])
+%                 eval(['r_AllE' tst '(bandidx,binidx) = nan;'])
+%                 eval(['r_CellsE' tst '(bandidx,:,binidx) = nan(1,size(E' tst 'GeneralMatrix,2)-2);'])
+%             end
+%             if ~isempty(tgmI)
+%                 eval(['rI' tst ' = corr(I' tst 'GeneralMatrix);'])
+%                 eval(['rI' tst '(find(bwdiag(length(rI' tst ')))) = 0;'])%zero the diag
+%                 eval(['r_AllI' tst '(bandidx,binidx) = rI' tst '(1,2);'])
+%                 eval(['r_CellsI' tst '(bandidx,:,binidx) = rI' tst '(1,3:end);'])
+%             else
+%                 eval(['rI' tst ' = nan;'])
+%                 eval(['r_AllI' tst '(bandidx,binidx) = nan;'])
+%                 eval(['r_CellsI' tst '(bandidx,:,binidx) = nan(1,size(I' tst 'GeneralMatrix,2)-2);'])
+%             end
+        end
+    end
 
-            % correlate
-            eval(['tgmE = E' tst 'GeneralMatrix;']);
-            eval(['tgmI = I' tst 'GeneralMatrix;']);
-            
-            % Real data
-            if ~isempty(tgmE)
-                eval(['rE' tst ' = corr(E' tst 'GeneralMatrix);'])
-                eval(['rE' tst '(find(bwdiag(length(rE' tst ')))) = 0;'])%zero the diag
-                eval(['r_AllE' tst '(bandidx,binidx) = rE' tst '(1,2);'])
-                eval(['r_CellsE' tst '(bandidx,:,binidx) = rE' tst '(1,3:end);'])
-            else
-                eval(['rE' tst ' = nan;'])
-                eval(['r_AllE' tst '(bandidx,binidx) = nan;'])
-                eval(['r_CellsE' tst '(bandidx,:,binidx) = nan(1,size(E' tst 'GeneralMatrix,2)-2);'])
-            end
-            if ~isempty(tgmI)
-                eval(['rI' tst ' = corr(I' tst 'GeneralMatrix);'])
-                eval(['rI' tst '(find(bwdiag(length(rI' tst ')))) = 0;'])%zero the diag
-                eval(['r_AllI' tst '(bandidx,binidx) = rI' tst '(1,2);'])
-                eval(['r_CellsI' tst '(bandidx,:,binidx) = rI' tst '(1,3:end);'])
-            else
-                eval(['rI' tst ' = nan;'])
-                eval(['r_AllI' tst '(bandidx,binidx) = nan;'])
-                eval(['r_CellsI' tst '(bandidx,:,binidx) = nan(1,size(I' tst 'GeneralMatrix,2)-2);'])
-            end
-            
-            %shuffle data
+  %% shuffle data
+  %note, shuffling across frequency bands, so have to wait until all
+  %powerbanddata vectors are collected above (in pbds matrix)
+    %for each cell type we grab a generic general data
+    % we then sub-in a random powerbanddata and re-evaluate
+    for stidx = 1:length(stateslist)%for each state
+        tst = stateslist{stidx};
+        
+        eval([tst 'pbds (:,end+1) = ' tst 'PowerbandData;'])
+        for bandidx = 1:length(bandmeans)+1
             ct = {'E','I'};
             for ctidx = 1:2
                 tct = ct{ctidx};
-                eval(['tgm = tgm' tct ';']) 
+                eval(['tgm = cat(2,' tst 'PopS' lower(tct) 'BinData,' tct 'Unit' tst 'Rates{binidx}'');'])
                 if ~isempty(tgm)
-                    NDataStreams = size(tgm,2);
                     for shuffidx = 1:nshuffs
-                        [~,idxs] = sort(rand((size(tgm))));
-                        tsgm = tgm(idxs);
+                        tindex = round(length(bandmeans)*rand);
+                        tsgm(:,1) = cat(2,pbd(:,tindex),tgm);
+
                         tShuffCorr = corr(tsgm);
                         tShuffCorr(find(bwdiag(length(tShuffCorr)))) = 0;%zero the diag
 
-    %                     eval(['rE' tst 'Shuff = corr(tsgmE);'])
-    %                     eval(['rE' tst 'Shuff(find(bwdiag(length(rE' tst 'Shuff)))) = 0;'])%zero the diag
+        %                     eval(['rE' tst 'Shuff = corr(tsgmE);'])
+        %                     eval(['rE' tst 'Shuff(find(bwdiag(length(rE' tst 'Shuff)))) = 0;'])%zero the diag
                         eval(['shuffGeneralMatrices' tct tst '(:,:,shuffidx) = tsgm;'])
                         eval(['shuffCorrs' tct tst '(:,:,shuffidx) = tShuffCorr;']) 
                         eval(['rShuff_All' tct tst '(bandidx,binidx,shuffidx) = tShuffCorr(1,2);'])
@@ -246,7 +266,7 @@ binwidthsecs = 1;
             end
         end
     end
-
+    
     
     if plotbinwidth == binwidthsecs%bin width to do some example plots by default
         for stidx = 1:length(stateslist)%for each state
@@ -261,28 +281,28 @@ binwidthsecs = 1;
 
 
 %% save
-BandPowerVsSingleUnitSpikeRateData = v2struct(basepath,basename,...
-    binwidthseclist,broadbandgammarange,plotbinwidth,bandmeans,...
-    numEcells,numIcells,stateslist,SeRates,SiRates,...
-    numEcells,numIcells,rankbasis,rankidxs);
-    
-for stidx = 1:length(stateslist);
-    tst = stateslist{stidx};
-    eval(['BandPowerVsSingleUnitSpikeRateData.Example' tst 'SePop = Example' tst 'SePop;'])
-    eval(['BandPowerVsSingleUnitSpikeRateData.Example' tst 'SiPop = Example' tst 'SiPop;'])
-    eval(['BandPowerVsSingleUnitSpikeRateData.Example' tst 'BroadBand = Example' tst 'BroadBand;'])
-    eval(['BandPowerVsSingleUnitSpikeRateData.' tst 'SecsIN = ' tst 'SecsIN;'])
-    eval(['BandPowerVsSingleUnitSpikeRateData.EUnit' tst 'Rates = EUnit' tst 'Rates;'])
-    eval(['BandPowerVsSingleUnitSpikeRateData.EUnit' tst 'RatesZ = EUnit' tst 'RatesZ;'])
-    eval(['BandPowerVsSingleUnitSpikeRateData.E' tst 'GeneralMatrix = E' tst 'GeneralMatrix;'])
-    eval(['BandPowerVsSingleUnitSpikeRateData.I' tst 'GeneralMatrix = I' tst 'GeneralMatrix;'])
-    eval(['BandPowerVsSingleUnitSpikeRateData.r_AllE' tst ' = r_AllE' tst ';'])
-    eval(['BandPowerVsSingleUnitSpikeRateData.r_AllI' tst ' = r_AllI' tst ';'])
-    eval(['BandPowerVsSingleUnitSpikeRateData.r_CellsE' tst ' = r_CellsE' tst ';'])
-    eval(['BandPowerVsSingleUnitSpikeRateData.r_CellsI' tst ' = r_CellsI' tst ';'])
-end
-
-save(fullfile(basepath,[basename '_BandPowerVsSingleUnitSpikeRateData.mat']),'BandPowerVsSingleUnitSpikeRateData','-v7.3')
+% BandPowerVsSingleUnitSpikeRateData = v2struct(basepath,basename,...
+%     binwidthseclist,broadbandgammarange,plotbinwidth,bandmeans,...
+%     numEcells,numIcells,stateslist,SeRates,SiRates,...
+%     numEcells,numIcells,rankbasis,rankidxs);
+%     
+% for stidx = 1:length(stateslist);
+%     tst = stateslist{stidx};
+%     eval(['BandPowerVsSingleUnitSpikeRateData.Example' tst 'SePop = Example' tst 'SePop;'])
+%     eval(['BandPowerVsSingleUnitSpikeRateData.Example' tst 'SiPop = Example' tst 'SiPop;'])
+%     eval(['BandPowerVsSingleUnitSpikeRateData.Example' tst 'BroadBand = Example' tst 'BroadBand;'])
+%     eval(['BandPowerVsSingleUnitSpikeRateData.' tst 'SecsIN = ' tst 'SecsIN;'])
+%     eval(['BandPowerVsSingleUnitSpikeRateData.EUnit' tst 'Rates = EUnit' tst 'Rates;'])
+%     eval(['BandPowerVsSingleUnitSpikeRateData.EUnit' tst 'RatesZ = EUnit' tst 'RatesZ;'])
+%     eval(['BandPowerVsSingleUnitSpikeRateData.E' tst 'GeneralMatrix = E' tst 'GeneralMatrix;'])
+%     eval(['BandPowerVsSingleUnitSpikeRateData.I' tst 'GeneralMatrix = I' tst 'GeneralMatrix;'])
+%     eval(['BandPowerVsSingleUnitSpikeRateData.r_AllE' tst ' = r_AllE' tst ';'])
+%     eval(['BandPowerVsSingleUnitSpikeRateData.r_AllI' tst ' = r_AllI' tst ';'])
+%     eval(['BandPowerVsSingleUnitSpikeRateData.r_CellsE' tst ' = r_CellsE' tst ';'])
+%     eval(['BandPowerVsSingleUnitSpikeRateData.r_CellsI' tst ' = r_CellsI' tst ';'])
+% end
+% 
+% save(fullfile(basepath,[basename '_BandPowerVsSingleUnitSpikeRateData.mat']),'BandPowerVsSingleUnitSpikeRateData','-v7.3')
 
 %% Save shuffled data
 for stidx = 1:length(stateslist);
