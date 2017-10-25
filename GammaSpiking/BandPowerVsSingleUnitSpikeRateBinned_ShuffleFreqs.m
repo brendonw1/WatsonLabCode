@@ -305,6 +305,7 @@ binwidthsecs = 1;
 
 %% Save shuffled data
 for stidx = 1:length(stateslist);
+    tst = stateslist{stidx};
     ct = {'E','I'};
     for ctidx = 1:2
         tct = ct{ctidx};

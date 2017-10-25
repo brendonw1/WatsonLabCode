@@ -261,31 +261,32 @@ binwidthsecs = 1;
 
 
 %% save
-BandPowerVsSingleUnitSpikeRateData = v2struct(basepath,basename,...
-    binwidthseclist,broadbandgammarange,plotbinwidth,bandmeans,...
-    numEcells,numIcells,stateslist,SeRates,SiRates,...
-    numEcells,numIcells,rankbasis,rankidxs);
-    
-for stidx = 1:length(stateslist);
-    tst = stateslist{stidx};
-    eval(['BandPowerVsSingleUnitSpikeRateData.Example' tst 'SePop = Example' tst 'SePop;'])
-    eval(['BandPowerVsSingleUnitSpikeRateData.Example' tst 'SiPop = Example' tst 'SiPop;'])
-    eval(['BandPowerVsSingleUnitSpikeRateData.Example' tst 'BroadBand = Example' tst 'BroadBand;'])
-    eval(['BandPowerVsSingleUnitSpikeRateData.' tst 'SecsIN = ' tst 'SecsIN;'])
-    eval(['BandPowerVsSingleUnitSpikeRateData.EUnit' tst 'Rates = EUnit' tst 'Rates;'])
-    eval(['BandPowerVsSingleUnitSpikeRateData.EUnit' tst 'RatesZ = EUnit' tst 'RatesZ;'])
-    eval(['BandPowerVsSingleUnitSpikeRateData.E' tst 'GeneralMatrix = E' tst 'GeneralMatrix;'])
-    eval(['BandPowerVsSingleUnitSpikeRateData.I' tst 'GeneralMatrix = I' tst 'GeneralMatrix;'])
-    eval(['BandPowerVsSingleUnitSpikeRateData.r_AllE' tst ' = r_AllE' tst ';'])
-    eval(['BandPowerVsSingleUnitSpikeRateData.r_AllI' tst ' = r_AllI' tst ';'])
-    eval(['BandPowerVsSingleUnitSpikeRateData.r_CellsE' tst ' = r_CellsE' tst ';'])
-    eval(['BandPowerVsSingleUnitSpikeRateData.r_CellsI' tst ' = r_CellsI' tst ';'])
-end
-
-save(fullfile(basepath,[basename '_BandPowerVsSingleUnitSpikeRateData.mat']),'BandPowerVsSingleUnitSpikeRateData','-v7.3')
+% BandPowerVsSingleUnitSpikeRateData = v2struct(basepath,basename,...
+%     binwidthseclist,broadbandgammarange,plotbinwidth,bandmeans,...
+%     numEcells,numIcells,stateslist,SeRates,SiRates,...
+%     numEcells,numIcells,rankbasis,rankidxs);
+%     
+% for stidx = 1:length(stateslist);
+%     tst = stateslist{stidx};
+%     eval(['BandPowerVsSingleUnitSpikeRateData.Example' tst 'SePop = Example' tst 'SePop;'])
+%     eval(['BandPowerVsSingleUnitSpikeRateData.Example' tst 'SiPop = Example' tst 'SiPop;'])
+%     eval(['BandPowerVsSingleUnitSpikeRateData.Example' tst 'BroadBand = Example' tst 'BroadBand;'])
+%     eval(['BandPowerVsSingleUnitSpikeRateData.' tst 'SecsIN = ' tst 'SecsIN;'])
+%     eval(['BandPowerVsSingleUnitSpikeRateData.EUnit' tst 'Rates = EUnit' tst 'Rates;'])
+%     eval(['BandPowerVsSingleUnitSpikeRateData.EUnit' tst 'RatesZ = EUnit' tst 'RatesZ;'])
+%     eval(['BandPowerVsSingleUnitSpikeRateData.E' tst 'GeneralMatrix = E' tst 'GeneralMatrix;'])
+%     eval(['BandPowerVsSingleUnitSpikeRateData.I' tst 'GeneralMatrix = I' tst 'GeneralMatrix;'])
+%     eval(['BandPowerVsSingleUnitSpikeRateData.r_AllE' tst ' = r_AllE' tst ';'])
+%     eval(['BandPowerVsSingleUnitSpikeRateData.r_AllI' tst ' = r_AllI' tst ';'])
+%     eval(['BandPowerVsSingleUnitSpikeRateData.r_CellsE' tst ' = r_CellsE' tst ';'])
+%     eval(['BandPowerVsSingleUnitSpikeRateData.r_CellsI' tst ' = r_CellsI' tst ';'])
+% end
+% 
+% save(fullfile(basepath,[basename '_BandPowerVsSingleUnitSpikeRateData.mat']),'BandPowerVsSingleUnitSpikeRateData','-v7.3')
 
 %% Save shuffled data
 for stidx = 1:length(stateslist);
+    tst = stateslist{stidx};
     ct = {'E','I'};
     for ctidx = 1:2
         tct = ct{ctidx};

@@ -298,6 +298,7 @@ save(fullfile(basepath,[basename '_BandPowerVsSingleUnitSpikeRateData.mat']),'Ba
 
 %% Save shuffled data
 for stidx = 1:length(stateslist);
+    tst = stateslist{stidx};
     ct = {'E','I'};
     for ctidx = 1:2
         tct = ct{ctidx};
@@ -312,9 +313,9 @@ for stidx = 1:length(stateslist);
         eval(['BandPowerVsSingleUnitSpikeRateData_ShuffledRs.rShuff_Cells' tct tst ' = rShuff_Cells' tct tst ';'])
     end
 end
-save(fullfile(basepath,[basename '_BandPowerVsSingleUnitSpikeRateData_ShuffledGeneralMatrices_Local']),'BandPowerVsSingleUnitSpikeRateData_ShuffledGeneralMatrices','-v7.3')
-save(fullfile(basepath,[basename '_BandPowerVsSingleUnitSpikeRateData_ShuffledCorrs_Local']),'BandPowerVsSingleUnitSpikeRateData_ShuffledCorrs','-v7.3')
-save(fullfile(basepath,[basename '_BandPowerVsSingleUnitSpikeRateData_ShuffledRs_Local']),'BandPowerVsSingleUnitSpikeRateData_ShuffledRs','-v7.3')
+save(fullfile(basepath,[basename '_BandPowerVsSingleUnitSpikeRateData_ShuffledGeneralMatrices']),'BandPowerVsSingleUnitSpikeRateData_ShuffledGeneralMatrices','-v7.3')
+save(fullfile(basepath,[basename '_BandPowerVsSingleUnitSpikeRateData_ShuffledCorrs']),'BandPowerVsSingleUnitSpikeRateData_ShuffledCorrs','-v7.3')
+save(fullfile(basepath,[basename '_BandPowerVsSingleUnitSpikeRateData_ShuffledRs']),'BandPowerVsSingleUnitSpikeRateData_ShuffledRs','-v7.3')
 
 %     ExampleAllTSePop, ExampleWakeSePop, ExampleNremSePop,ExampleRemSePop,...
 %     ExampleMaSePop,
