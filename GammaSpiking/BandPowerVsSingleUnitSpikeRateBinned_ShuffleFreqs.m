@@ -233,17 +233,18 @@ binwidthsecs = 1;
   %powerbanddata vectors are collected above (in pbds matrix)
     %for each cell type we grab a generic general data
     % we then sub-in a random powerbanddata and re-evaluate
-    for bandidx = 1:length(bandmeans)+1
-        for stidx = 1:length(stateslist)%for each state
-            tst = stateslist{stidx};
+    for stidx = 1:length(stateslist)%for each state
+        tst = stateslist{stidx};
+        eval(['pbd = ' tst 'pbds;'])
+        for bandidx = 1:length(bandmeans)+1
             ct = {'E','I'};
             for ctidx = 1:2
                 tct = ct{ctidx};
                 eval(['tgm = cat(2,' tst 'PopS' lower(tct) 'BinData,' tct 'Unit' tst 'Rates{binidx}'');'])
                 if ~isempty(tgm)
                     for shuffidx = 1:nshuffs
-                        tindex = round(length(bandmeans)*rand);
-                        tsgm(:,1) = cat(2,pbd(:,tindex),tgm);
+                        tindex = ceil(length(bandmeans)*rand);
+                        tsgm = cat(2,pbd(:,tindex),tgm);
 
                         tShuffCorr = corr(tsgm);
                         tShuffCorr(find(bwdiag(length(tShuffCorr)))) = 0;%zero the diag
@@ -259,7 +260,7 @@ binwidthsecs = 1;
                     eval(['shuffGeneralMatrices' tct tst ' = nan;'])
                     eval(['shuffCorrs' tct tst ' = nan;']) 
                     eval(['rShuff_All' tct tst ' = nan;']) 
-                    eval(['rShuff_Cells' tct tst '(bandidx,:,binidx) = nan(1,size(' tct tst 'GeneralMatrix,2)-2);'])
+                    eval(['rShuff_Cells' tct tst '(bandidx,:,binidx) = nan;'])
                 end
             end
         end

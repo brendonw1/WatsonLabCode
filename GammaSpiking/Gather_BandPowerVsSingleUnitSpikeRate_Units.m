@@ -43,11 +43,11 @@ for fidx = 1:length(names)
     out.numIcells = cat(1,out.numIcells,t.numIcells);
     for sidx = 1:length(stateslist)%state index
         tst = stateslist{sidx};
-        for cidx = 1:2;%celltypes
+        for cidx = 1:2%celltypes
             tct = celltypes{cidx};
             %% Cell-wise data
             eval(['tname = ''r_Cells' tct tst ''';'])
-            if fidx == 1;
+            if fidx == 1
                 eval(['out.' tname ' = [];'])
             end
             try
@@ -58,7 +58,7 @@ for fidx = 1:length(names)
             end
             %% Combined pop data (not single cell)
             eval(['tname = ''r_All' tct tst ''';'])
-            if fidx == 1;
+            if fidx == 1
                 eval(['out.' tname ' = [];'])
             end
             try

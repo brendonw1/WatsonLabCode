@@ -26,7 +26,9 @@ end
 % [names,dirs]=GetDefaultDataset('new');
 
 %% Cycle through datasets and grab any specified variables in each, to feed into the excute string
-for count = 3:length(dirs);
+parpool(4)
+% parfor count = 7:length(dirs);
+for count = 7:length(dirs);
     disp(['Starting ' names{count}])
     basename = names{count};
     basepath = dirs{count};
