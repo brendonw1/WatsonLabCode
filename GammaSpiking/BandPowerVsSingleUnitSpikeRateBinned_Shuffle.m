@@ -1,4 +1,4 @@
-function BandPowerVsSingleUnitSpikeRateBinned_Shuffle(basepath,nshuffs,plotting)
+function BandPowerVsSingleUnitSpikeRateBinned_Shuffle(basepath,numShuffs,plotting)
 % Individual cells correlated against various frequency bands.  Each cell
 % vs each band.  Also population and broadband data used too.
 % Brendon Watson 2017
@@ -22,8 +22,8 @@ if ~exist('basepath','var')
 end
 basename = bz_BasenameFromBasepath(basepath);
 
-if ~exist('nshuffs','var')
-    nshuffs = 200;
+if ~exist('numShuffs','var')
+    numShuffs = 200;
 end
 
 if ~exist('plotting','var')
@@ -224,7 +224,7 @@ binwidthsecs = 1;
                 eval(['tgm = tgm' tct ';']) 
                 if ~isempty(tgm)
                     NDataStreams = size(tgm,2);
-                    for shuffidx = 1:nshuffs
+                    for shuffidx = 1:numShuffs
                         [~,idxs] = sort(rand((size(tgm))));
                         tsgm = tgm(idxs);
                         tShuffCorr = corr(tsgm);
@@ -301,6 +301,9 @@ for stidx = 1:length(stateslist);
         eval(['BandPowerVsSingleUnitSpikeRateData_ShuffledRs.rShuff_Cells' tct tst ' = rShuff_Cells' tct tst ';'])
     end
 end
+BandPowerVsSingleUnitSpikeRateData_ShuffledGeneralMatrices.numShuffs =numShuffs;
+BandPowerVsSingleUnitSpikeRateData_ShuffledCorrs.numShuffs =numShuffs;
+BandPowerVsSingleUnitSpikeRateData_ShuffledRs.numShuffs =numShuffs;
 save(fullfile(basepath,[basename '_BandPowerVsSingleUnitSpikeRateData_ShuffledGeneralMatrices']),'BandPowerVsSingleUnitSpikeRateData_ShuffledGeneralMatrices','-v7.3')
 save(fullfile(basepath,[basename '_BandPowerVsSingleUnitSpikeRateData_ShuffledCorrs']),'BandPowerVsSingleUnitSpikeRateData_ShuffledCorrs','-v7.3')
 save(fullfile(basepath,[basename '_BandPowerVsSingleUnitSpikeRateData_ShuffledRs']),'BandPowerVsSingleUnitSpikeRateData_ShuffledRs','-v7.3')

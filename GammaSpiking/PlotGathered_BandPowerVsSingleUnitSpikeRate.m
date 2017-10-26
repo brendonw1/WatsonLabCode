@@ -1,6 +1,8 @@
 function PlotGathered_BandPowerVsSingleUnitSpikeRate
 
-load(fullfile(getdropbox,'BW_OUTPUT','GammaSpikingProject','GatheredData','UnitRateVsBandPowerGathered.mat'))
+dataloc = fullfile(filesep,'data','GammaDatasetGatheredData');
+% dataloc = fullfile(getdropbox,'BW_OUTPUT','GammaSpikingProject','GatheredData');
+load(fullfile(dataloc,'UnitRateVsBandPowerGathered.mat'))
 
 u = UnitRateVsBandPowerGathered;
 plotbinwidth = 1;

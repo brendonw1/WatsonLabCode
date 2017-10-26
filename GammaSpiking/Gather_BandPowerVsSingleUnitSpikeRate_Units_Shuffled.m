@@ -2,7 +2,7 @@ function Gather_BandPowerVsSingleUnitSpikeRate_Units_Shuffled(folderpath)
 
 
 if ~exist('folderpath','var')
-    folderpath = fullfile('/','proraid','GammaDataset');
+    folderpath = fullfile(filesep,'data','GammaDataset');
     if ~exist(folderpath,'dir')
         folderpath = cd;
     end
@@ -18,6 +18,7 @@ for count = 1:length(d);
         dirs{end+1} = fullfile(folderpath,d(count).name);
     end
 end
+savedir = fullfile(filesep,'data','GammaDatasetGatheredData');
 
 %% Variable setup
 celltypes = {'E','I'};
@@ -30,10 +31,12 @@ outsh.WakeRates = [];
 outsh.rankidxs = [];
 outsh.numEcells = [];
 outsh.numIcells = [];
+outsh.numShuffs = [];
 
 
 %% For each data folder
 for fidx = 1:length(names)
+% for fidx = 1:23
     basename = names{fidx};
     basepath = dirs{fidx};
     
@@ -57,6 +60,7 @@ for fidx = 1:length(names)
     outsh.rankidxs = cat(1,outsh.rankidxs,t.rankidxs);
     outsh.numEcells = cat(1,outsh.numEcells,t.numEcells);
     outsh.numIcells = cat(1,outsh.numIcells,t.numIcells);
+    outsh.numShuffs = cat(1,outsh.numShuffs,tsh.numShuffs);
     for sidx = 1:length(stateslist)%state index
         tst = stateslist{sidx};
         for cidx = 1:2%celltypes
@@ -80,7 +84,7 @@ for fidx = 1:length(names)
             try
                 eval(['outsh.' tname ' = cat(2,outsh.' tname ',tsh.' tname ');'])
             catch
-                eval(['tt = nan(length(t.bandmeans)+1,t.num' tct 'cells,length(t.binwidthseclist));'])
+                eval(['tt = nan(length(t.bandmeans)+1,t.num' tct 'cells,1,tsh.numShuffs);'])
                 eval([tname ' = cat(2, outsh.' tname ',tt);'])
             end
             
@@ -112,8 +116,8 @@ for sidx = 1:length(stateslist)%state index
         eval(['out.r_Cells' tct tst 'ToBroad = squeeze(out.r_Cells' tct tst '(end,:,:));']);
         eval(['out.r_Cells' tct tst ' = out.r_Cells' tct tst '(1:end-1,:,:);'])
 
-        eval(['outsh.r_Cells' tct tst 'ToBroad = squeeze(outsh.r_Cells' tct tst '(end,:,:));']);
-        eval(['outsh.r_Cells' tct tst ' = outsh.r_Cells' tct tst '(1:end-1,:,:);'])
+        eval(['outsh.r_Cells' tct tst 'ToBroad = squeeze(outsh.rShuff_Cells' tct tst '(end,:,:));']);
+        eval(['outsh.r_Cells' tct tst ' = outsh.rShuff_Cells' tct tst '(1:end-1,:,:);'])
         
 %         eval(['out.r_All' tct tst 'ToBroad = squeeze(out.r_All' tct tst '(end,:,:));']);
 %         eval(['out.r_All' tct tst ' = out.r_All' tct tst '(1:end-1,:,:);'])
@@ -136,9 +140,10 @@ outsh.Basenames = names;
 outsh.Basepaths = dirs;
 
 UnitRateVsBandPowerGathered = out;
-UnitRateVsBandPowerShuffledGathered = outsh;
+UnitRateVsBandPowerGathered_Shuffled = outsh;
 
-save(fullfile(getdropbox,'BW_OUTPUT','GammaSpikingProject','GatheredData','UnitRateVsBandPowerGathered.mat'),'UnitRateVsBandPowerGathered','UnitRateVsBandPowerShuffledGathered')
+% save(fullfile(savedir,'UnitRateVsBandPowerGathered.mat'),'UnitRateVsBandPowerGathered')
+save(fullfile(savedir,'UnitRateVsBandPowerGathered_Shuffled.mat'),'UnitRateVsBandPowerGathered_Shuffled')
 1;
 
 
