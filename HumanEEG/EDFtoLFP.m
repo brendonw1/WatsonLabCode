@@ -1,4 +1,8 @@
 function header = EDFtoLFP(filename)
+% Converts the commonly used EDF file format into
+% buzcode/neuroscope-compliant lfp files.  Uses edfread as a core function.
+% 
+% Brendon Watson 2016-7
 
 if ~exist('filename','var')
     d = dir('*.edf');
