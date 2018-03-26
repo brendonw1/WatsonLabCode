@@ -55,6 +55,11 @@ if isempty(d);%if no basename.xml already
     end
 end
 
+%% Handling some dat metadata
+bz_DatInfoMake(basepath,basename)
+SecondsAfterLightCycleStart = TimeFromLightCycleStart(basepath,basename);% Zeitgeber times of recording files
+RecordingSecondsToTimeSeconds(basepath,basename)
+
 %% Handling dat and lfp
 disp('Concatenating .dat files')
 bz_ConcatenateDats(basepath);
@@ -66,8 +71,8 @@ disp('Starting Sleep Scoring')
 SleepScoreMaster(basepath);
 
 %% Spike sorting
-% disp('Starting KiloSort')
-% KiloSortWrapper(basepath);
+disp('Starting KiloSort')
+KiloSortWrapper(basepath);
 
 
 

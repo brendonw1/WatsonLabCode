@@ -1,15 +1,12 @@
-function DatInfo = bz_DatInfoMake(basepath)
+function DatInfo = DatInfoMake(basepath,basename)
 % Store basic info about the original dat files: names and bytes
 % Brendon Watson 2016-8
 
-%% Input and directory handling 
 if ~exist('basepath','var')
-    basepath = cd;
-elseif isempty(basepath)
-    basepath = cd;
+    [~,basename,~] = fileparts(cd);
+    basepath = cd;   
 end
 
-basename = bz_BasenameFromBasepath(basepath);
 
 
 %% First find out what system was used to record this... based on files present
@@ -242,4 +239,3 @@ switch recsys
         DatInfo.Parameters.VoltageRange = 10;%not used except to make xml
 end
     
-save(fullfile(basepath,[basename '_DatInfo.mat']),'DatInfo')

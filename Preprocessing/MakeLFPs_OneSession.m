@@ -17,11 +17,11 @@ else
     eegname = fullfile(dirpath,[basename,'.lfp']);
     if ~exist(eegname,'file')
         xmlname = fullfile(dirpath,[basename,'.xml']);
-        parameters = LoadParameters(xmlname);
-        DatSampFreq = parameters.SampleRate;
+        par = bz_getSessionInfo(xmlname);
+        DatSampFreq = par.rates.wideband;
         numerator = 1;
         denominator = DatSampFreq/goalLFPSampFreq;
-        ResampleBinary(datname,eegname,parameters.nChannels,numerator,denominator)
+        ResampleBinary(datname,eegname,par.nChannels,numerator,denominator)
     end
 end
     
