@@ -1,6 +1,8 @@
-function MakeConcatDats_OneSession(dirpath)
+function MakeConcatDats_OneSession(dirpath,deleteOriginalDats)
 %assumes you are in or pointed to a directory containing subdirectories for
 % various recording files from a single session
+% Deletes original dats if deleteOriginalDats = 1;.  If 0 or no entry, will
+% not delete
 
 
 % basic session name and and path
@@ -79,9 +81,11 @@ else
     save(fullfile(dirpath,[basename '_DatInfo.mat']),'recordingbytes','recordingnames')
 
     %% Clean up amplifier.dat files in subdirectories... but wait til here to make sure everything worked first
-    t = ['! rm ' dirpath '/*/amplifier.dat'];
-    try
-        eval(t)
+    if deleteOriginalDats = 1;
+        t = ['! rm ' dirpath '/*/amplifier.dat'];
+        try
+            eval(t)
+        end
     end
     eval(['! neuroscope ' fullfile(dirpath,[basename,'.dat']) ' &'])
 end

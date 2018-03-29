@@ -7,6 +7,7 @@ elseif isempty(basepath)
 end
 basename = bz_BasenameFromBasepath(basepath);
 
+
 %% Optional: don't do it if already preprocessed... can comment this out
 if exist(fullfile(basepath,[basename,'.SleepState.states.mat']),'file');
     disp([basename ' already done, skipping'])
@@ -14,57 +15,94 @@ if exist(fullfile(basepath,[basename,'.SleepState.states.mat']),'file');
 end
 
 %% Assuming one already did bz_SetAnimalMetadata
-% if both the .mat and the Text.m files already exist in the basepath
-tmat = fullfile(basepath,[basename,'.SessionMetadata.mat']);
-ttext = fullfile(basepath,[basename,'_SessionMetadataText.m']);
-if exist(tmat,'file') && exist(ttext,'file')
-    disp([basename ': SessionMetadata already exists, not changing']);
-elseif ~exist(tmat,'file') && exist(ttext,'file') %if just the Text.m exists, just run it.
-    run(ttext);
-%     bz_RunSessionMetadata(basepath)
-else %if not all set up
-    % find sessionmetadata in animal folder - use as template
-%     basepath = cd;
-    [animalpath] = fileparts(basepath);
-    d = dir(fullfile(animalpath,'*SessionMetadataText.m'));
-    if ~isempty(d);
-        copyfile(fullfile(animalpath,d(1).name),ttext);
-        disp(['NOTE: Autorunning SessionMetadataText.m for ' basename ' based on default session metadata values.  Session metadata has not been specifically edited for this session and may need to be edited and re-run']) 
-        run(ttext);
-    else
-        disp([basename ': must provide either a local SessionMetadataText.m or a default one in Animal folder above'])
-        return
-    end
-%     bz_RunSessionMetadata(basepath);%this will default to the currently present _SessionMetadata.mat file if it's present.
-    
-end
+% % if both the .mat and the Text.m files already exist in the basepath
+% tmat = fullfile(basepath,[basename,'.SessionMetadata.mat']);
+% ttext = fullfile(basepath,[basename,'_SessionMetadataText.m']);
+% if exist(tmat,'file') && exist(ttext,'file')
+%     disp([basename ': SessionMetadata already exists, not changing']);
+% elseif ~exist(tmat,'file') && exist(ttext,'file') %if just the Text.m exists, just run it.
+%     run(ttext);
+% %     bz_RunSessionMetadata(basepath)
+% else %if not all set up
+%     % find sessionmetadata in animal folder - use as template
+% %     basepath = cd;
+%     [animalpath] = fileparts(basepath);
+%     d = dir(fullfile(animalpath,'*SessionMetadataText.m'));
+%     if ~isempty(d);
+%         copyfile(fullfile(animalpath,d(1).name),ttext);
+%         disp(['NOTE: Autorunning SessionMetadataText.m for ' basename ' based on default session metadata values.  Session metadata has not been specifically edited for this session and may need to be edited and re-run']) 
+%         run(ttext);
+%     else
+%         disp([basename ': must provide either a local SessionMetadataText.m or a default one in Animal folder above'])
+%         return
+%     end
+% %     bz_RunSessionMetadata(basepath);%this will default to the currently present _SessionMetadata.mat file if it's present.
+%     
+% end
 
-%% making an xml if needed
-basename = bz_BasenameFromBasepath(basepath);
+%% copying xml if needed
+% !How to set htis up for now?
+% !copy from above or amplifier.xml?
 txmlname = fullfile(basepath,[basename '.xml']);
 d = dir(fullfile(basepath,txmlname));
-load(fullfile(basepath,[basename '.SessionMetadata.mat']))
-if isempty(d);%if no basename.xml already
-    if isempty(SessionMetadata.ExtracellEphys.ParametersDivergentFromAnimalMetadata)%if not different from animal xml, copy the animal xml here
-        ax = fullfile(SessionMetadata.AnimalMetadata.AnimalBasepath,[SessionMetadata.AnimalMetadata.AnimalName, '.xml']);
-        copyfile(ax,txmlname);
-        disp([basename ': XML copied from animal folder']);
-    else    %if changes, make new xml for this session
-        bz_MakeXML(basepath)
-        disp([basename ': XML made from Metadata files']);
+if isempty(d);%if no basename.xml already in this folder
+    [suprapath,~] = fileparts(basepath);%... look in the folder above 
+    underscores = findstr(basename,'_');
+    animalname = basename(1:underscores(1)-1);
+    d2 = dir(fullfile(suprapath,[animalname '.xml']));%for either animalname.xml
+    d3 = dir(fullfile(suprapath,'amplifier.xml'));% or amplifier.xml
+    d2 = cat(1,d2,d3);
+    if length(d2) == 1%if one and only one found, assume it and copy it to basepath
+        copyfile (fullfile(suprapath,d2(1).name),txmlname)
+    else%otherwise get user input
+        [uifile,uipath] = uigetfile('.xml','Select Xml to copy into this folder for this recording')
+        copyfile (fullfile(uipath,uifile),txmlname)
     end
 end
 
+% basename = bz_BasenameFromBasepath(basepath);
+% txmlname = fullfile(basepath,[basename '.xml']);
+% d = dir(fullfile(basepath,txmlname));
+% load(fullfile(basepath,[basename '.SessionMetadata.mat']))
+% if isempty(d);%if no basename.xml already
+%     if isempty(SessionMetadata.ExtracellEphys.ParametersDivergentFromAnimalMetadata)%if not different from animal xml, copy the animal xml here
+%         ax = fullfile(SessionMetadata.AnimalMetadata.AnimalBasepath,[SessionMetadata.AnimalMetadata.AnimalName, '.xml']);
+%         copyfile(ax,txmlname);
+%         disp([basename ': XML copied from animal folder']);
+%     else    %if changes, make new xml for this session
+%         bz_MakeXML(basepath)
+%         disp([basename ': XML made from Metadata files']);
+%     end
+% end
+
+
+
+%% Handling dat 
+disp('Concatenating .dat files')
+% MakeConcatDats_OneSession(basepath) 
+deleteoriginaldatsboolean = 0;
+bz_ConcatenateDats(basepath,deleteoriginaldatsboolean);
+
+%% Get session... sort of partial metadata
+eval(['! neuroscope ' fullfile(basepath,[basename '.dat']) ' &'])
+sessionInfo = bz_getSessionInfo(basepath,'editGUI',true);
+% bz_getSessionInfo(basepath,'editGUI',true);
+
 %% Handling some dat metadata
-bz_DatInfoMake(basepath,basename)
-SecondsAfterLightCycleStart = TimeFromLightCycleStart(basepath,basename);% Zeitgeber times of recording files
+bz_DatFileMetadata(basepath)
+SecondsAfterLightCycleStart = TimeFromLightCycleStart(basepath);% Zeitgeber times of recording files
 RecordingSecondsToTimeSeconds(basepath,basename)
 
-%% Handling dat and lfp
-disp('Concatenating .dat files')
-bz_ConcatenateDats(basepath);
+%% Make LFP file 
 disp('Converting .dat to .lfp')
-bz_LFPFromDat(basepath);
+datname = fullfile(basepath,[basename '.dat']);
+lfpname = fullfile(basepath,[basename '.lfp']);
+nchannels = length(sessionInfo.channels);
+widebandsampfreq = sessionInfo.rates.wideband;
+desiredLfpFreq = 1250;%user choice, 1250 is buzsakilab convention
+
+ResampleBinary(datname,lfpname,nchannels,widebandsampfreq,desiredLfpFreq);
+% bz_LFPFromDat(basepath)
 
 %% Sleep Scoring
 disp('Starting Sleep Scoring')
@@ -74,25 +112,19 @@ SleepScoreMaster(basepath);
 disp('Starting KiloSort')
 KiloSortWrapper(basepath);
 
+%% To Klusters
+Kilosort2Neurosuite(rez);
+% Save original clus if clu's prsent
+t = dir (fullfile(basepath,'*.clu.*'));
+if ~isempty(t)
+    mkdir(fullfile(basepath,'OriginalClus'));
+    for idx = 1:length(t)
+        copyfile(fullfile(basepath,t(idx).name),fullfile(basepath,'OriginalClus'));
+    end
+end
 
 
 
-
-
-
-% %manually: make a folder with fbasename
-% %have all files in it
-% %generate xml with name fbasename
-% %navigate to that folder
-% 
-% %% get basename, assume the current directory is named basename
-% dirname = cd;
-% f = filesep;
-% r = regexp(dirname,f);%find the slash
-% basename = dirname(r(end)+1:end);%take from after the last slash to the end
-% 
-% %%
-% RemoveDCfromDat_AllDat
 % 
 % %% put all .dats in a subfolder called basename or to isis
 % % mkdir(basename);

@@ -25,7 +25,7 @@ for v = 1:length(u);
             eegname = fullfile(dirpath,[basename,'.lfp']);
             if ~exist(eegname,'file')
                 xmlname = fullfile(dirpath,[basename,'.xml']);
-                parameters = LoadPar(xmlname);        
+                parameters = LoadParameters(xmlname);        
                 ResampleBinary(datname,eegname,parameters.nChannels,1,16)
             end
         end
