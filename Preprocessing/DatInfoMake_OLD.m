@@ -18,7 +18,7 @@ recordingnames = {};
 
 d = dir(fullfile(basepath,'*.meta'));
 if ~isempty(d);%if from an amplipex
-    par = LoadParameters(fullfile(basepath,[basename '.xml']));
+    par = bz_getSessionInfo(fullfile(basepath,[basename '.xml']));
     for a = 1:length(d);
 %             nchans = ReadMetaAspects(fullfile(basepath,d(a).name),'numchans')
         recordingbytes(end+1) = str2num(ReadMetaAspects(fullfile(basepath,d(a).name),'filebytes'));
@@ -26,9 +26,12 @@ if ~isempty(d);%if from an amplipex
     end
 else %if intan, use the length of time.dat, which is 32 bit for each timepoint... divide by 2 to get bytes of 16bit dat
     par = LoadParameters(fullfile(basepath,[basename '.xml']));
-    d = dir([basename(1:end-3) '*/']);%if I record over new year's eve I'll have to handle it :)
-    for a = length(d):-1:1;
+%     d = dir([basename(1:end-3) '*/']);%if I record over new year's eve I'll have to handle it :)
+    d = dir([basepath,filesep]);%if I record over new year's eve I'll have to handle it :)
+    for a = length(d):-1:1
         if ~d(a).isdir
+            d(a) = [];
+        elseif strcmp(d(a).name,'.') | strcmp(d(a).name,'..')
             d(a) = [];
         end
     end
@@ -39,7 +42,7 @@ else %if intan, use the length of time.dat, which is 32 bit for each timepoint..
     end
 end
 
-recordingseconds = recordingbytes/par.nChannels/2/par.SampleRate;
+recordingseconds = recordingbytes/par.nChannels/2/par.rates.wideband;
 
 save(fullfile(basepath,[basename '_DatInfo.mat']),'recordingbytes','recordingseconds','recordingnames')
 DatInfo = v2struct(recordingbytes, recordingseconds, recordingnames);
