@@ -95,14 +95,13 @@ RecordingSecondsToTimeSeconds(basepath,basename)
 
 %% Make LFP file 
 disp('Converting .dat to .lfp')
-datname = fullfile(basepath,[basename '.dat']);
-lfpname = fullfile(basepath,[basename '.lfp']);
-nchannels = length(sessionInfo.channels);
-widebandsampfreq = sessionInfo.rates.wideband;
-desiredLfpFreq = 1250;%user choice, 1250 is buzsakilab convention
-
-ResampleBinary(datname,lfpname,nchannels,widebandsampfreq,desiredLfpFreq);
-% bz_LFPFromDat(basepath)
+%datname = fullfile(basepath,[basename '.dat']);
+%lfpname = fullfile(basepath,[basename '.lfp']);
+%nchannels = length(sessionInfo.channels);
+%widebandsampfreq = sessionInfo.rates.wideband;
+%desiredLfpFreq = 1250;%user choice, 1250 is buzsakilab convention
+%ResampleBinary(datname,lfpname,nchannels,widebandsampfreq,desiredLfpFreq);
+bz_LFPFromDat(basepath)
 
 %% Sleep Scoring
 disp('Starting Sleep Scoring')
@@ -113,7 +112,7 @@ disp('Starting KiloSort')
 KiloSortWrapper(basepath);
 
 %% To Klusters
-Kilosort2Neurosuite(rez);
+% Kilosort2Neurosuite(rez);
 % Save original clus if clu's prsent
 t = dir (fullfile(basepath,'*.clu.*'));
 if ~isempty(t)
