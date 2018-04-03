@@ -83,14 +83,14 @@ disp('Concatenating .dat files')
 deleteoriginaldatsboolean = 0;
 bz_ConcatenateDats(basepath,deleteoriginaldatsboolean);
 
-%% Get session... sort of partial metadata
+%% Get sessioninfo... sort of partial metadata
 eval(['! neuroscope ' fullfile(basepath,[basename '.dat']) ' &'])
 sessionInfo = bz_getSessionInfo(basepath,'editGUI',true);
 % bz_getSessionInfo(basepath,'editGUI',true);
 
 %% Handling some dat metadata
 bz_DatFileMetadata(basepath)
-SecondsAfterLightCycleStart = TimeFromLightCycleStart(basepath);% Zeitgeber times of recording files
+TimeFromLightCycleStart(basepath);% Zeitgeber times of recording files
 RecordingSecondsToTimeSeconds(basepath,basename)
 
 %% Make LFP file 
