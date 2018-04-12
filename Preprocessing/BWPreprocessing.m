@@ -90,8 +90,13 @@ sessionInfo = bz_getSessionInfo(basepath,'editGUI',true);
 
 %% Handling some dat metadata
 bz_DatFileMetadata(basepath)
-TimeFromLightCycleStart(basepath);% Zeitgeber times of recording files
-RecordingSecondsToTimeSeconds(basepath,basename)
+try
+    TimeFromLightCycleStart(basepath);% Zeitgeber times of recording files
+    RecordingSecondsToTimeSeconds(basepath,basename)
+catch(e)
+    rethrow(e)
+end
+
 
 %% Make LFP file 
 disp('Converting .dat to .lfp')
@@ -108,20 +113,23 @@ disp('Starting Sleep Scoring')
 SleepScoreMaster(basepath);
 
 %% Spike sorting
-disp('Starting KiloSort')
-KiloSortWrapper(basepath);
+try
+    disp('Starting KiloSort')
+    KiloSortWrapper(basepath);
 
-%% To Klusters
-% Kilosort2Neurosuite(rez);
-% Save original clus if clu's prsent
-t = dir (fullfile(basepath,'*.clu.*'));
-if ~isempty(t)
-    mkdir(fullfile(basepath,'OriginalClus'));
-    for idx = 1:length(t)
-        copyfile(fullfile(basepath,t(idx).name),fullfile(basepath,'OriginalClus'));
+    % To Klusters
+    % Kilosort2Neurosuite(rez);
+    % Save original clus if clu's prsent
+    t = dir (fullfile(basepath,'*.clu.*'));
+    if ~isempty(t)
+        mkdir(fullfile(basepath,'OriginalClus'));
+        for idx = 1:length(t)
+            copyfile(fullfile(basepath,t(idx).name),fullfile(basepath,'OriginalClus'));
+        end
     end
+catch(e)
+    rethrow(e)
 end
-
 
 
 % 
