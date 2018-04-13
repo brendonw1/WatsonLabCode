@@ -15,7 +15,7 @@ end
 if ~exist('d','var')
     if length(cname) >= 6
         if strcmp(cname(1:6),'balrog')
-            d = '/SSD1/Dropbox/';
+            d = '/home/brendonw/Dropbox/';
         end
     end
 end

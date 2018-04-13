@@ -9,10 +9,13 @@ MakeConcatDats_OneSession(basepath)
 DatInfoMake(basepath,basename)
 
 %% MakeEEG
-MakeEEGs_OneSession(basepath)
+MakeLFPs_SessionsInDirectory(basepath)
 
 %% Auto sleep scoring
-CallSleepScoreMaster(basepath,basename)
+SleepScoreMaster(basepath,basename)
+
+%% Kilosort
+KiloSortWrapper(basepath,basename);
 
 %% Prep for 
 
