@@ -4,6 +4,7 @@ if ~exist('basepath','var')
     basepath = cd;
 elseif isempty(basepath)
     basepath = cd;
+    1;
 end
 basename = bz_BasenameFromBasepath(basepath);
 
