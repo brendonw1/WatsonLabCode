@@ -95,8 +95,8 @@ bz_DatFileMetadata(basepath)
 try
     TimeFromLightCycleStart(basepath);% Zeitgeber times of recording files
     RecordingSecondsToTimeSeconds(basepath,basename)
-catch(e)
-    rethrow(e)
+catch e
+    disp(['Received error: "' e.message '" during timestamping.  SKIPPING STEP and Continuing on'])
 end
 
 
