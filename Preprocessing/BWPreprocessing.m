@@ -1,4 +1,5 @@
 function BWPreprocessing(basepath,noPrompts)
+warning off
 
 if ~exist('basepath','var')
     basepath = cd;
@@ -9,9 +10,9 @@ end
 basename = bz_BasenameFromBasepath(basepath);
 
 if ~exist('noPrompts','var')
-    noPrompts = 1;
+    noPrompts = (1);
 end
-
+noPrompts = logical(noPrompts);
 
 %% Optional: don't do it if already preprocessed... can comment this out
 if exist(fullfile(basepath,[basename,'.SleepState.states.mat']),'file');
@@ -132,24 +133,34 @@ disp('Starting Sleep Scoring')
 SleepScoreMaster(basepath);
 
 %% Spike sorting
-try
-    disp('Starting KiloSort')
-    KiloSortWrapper(basepath);
-
-    % To Klusters
-    % Kilosort2Neurosuite(rez);
-    % Save original clus if clu's prsent
-    t = dir (fullfile(basepath,'*.clu.*'));
-    if ~isempty(t)
-        mkdir(fullfile(basepath,'OriginalClus'));
-        for idx = 1:length(t)
-            copyfile(fullfile(basepath,t(idx).name),fullfile(basepath,'OriginalClus'));
-        end
-    end
-catch(e)
-    rethrow(e)
+try %figure out if gpu is present
+    gpuArray(1);
+    goodGPU = 1;
+catch
+    goodGPU = 0;
 end
 
+if goodGPU
+    try
+        disp('Starting KiloSort')
+        KiloSortWrapper(basepath);
+
+        % To Klusters
+        % Kilosort2Neurosuite(rez);
+        % Save original clus if clu's prsent
+        t = dir (fullfile(basepath,'*.clu.*'));
+        if ~isempty(t)
+            mkdir(fullfile(basepath,'OriginalClus'));
+            for idx = 1:length(t)
+                copyfile(fullfile(basepath,t(idx).name),fullfile(basepath,'OriginalClus'));
+            end
+        end
+    catch(e)
+        rethrow(e)
+    end
+else
+    disp('No GPU, not running kilosort')
+end
 
 % 
 % %% put all .dats in a subfolder called basename or to isis
