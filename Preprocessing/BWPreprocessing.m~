@@ -51,26 +51,28 @@ end
 txmlname = fullfile(basepath,[basename '.xml']);
 d = dir(txmlname);
 if isempty(d)%if no basename.xml already in this folder
-%     d3 = dir(fullfile(basepath,'amplifier.xml'));% or amplifier.xml
-%     if length(d2) == 1%if one and only one found, assume it and copy it to basepath
-%         copyfile (fullfile(suprapath,d2(1).name),txmlname)
-%     else%otherwise get user input
-%         [uifile,uipath] = uigetfile('.xml','Select Xml to copy into this folder for this recording')
-%         copyfile (fullfile(uipath,uifile),txmlname)
-%     end
-% 
-%     [suprapath,~] = fileparts(basepath);%... look in the folder above 
-%     underscores = findstr(basename,'_');
-%     animalname = basename(1:underscores(1)-1);
-%     d2 = dir(fullfile(suprapath,[animalname '.xml']));%for either animalname.xml
-%     d3 = dir(fullfile(suprapath,'amplifier.xml'));% or amplifier.xml
-%     d2 = cat(1,d2,d3);
-%     if length(d2) == 1%if one and only one found, assume it and copy it to basepath
-%         copyfile (fullfile(suprapath,d2(1).name),txmlname)
-%     else%otherwise get user input
-        [uifile,uipath] = uigetfile('.xml','Select Xml to copy into this folder for this recording');
-%         copyfile (fullfile(uipath,uifile),txmlname)
-%     end
+    d2 = dir(fullfile(basepath,[animalname '.xml']));%for either animalname.xml
+    d3 = dir(fullfile(basepath,'amplifier.xml'));% or amplifier.xml
+    d2 = cat(1,d2,d3);
+    if length(d2) == 1%if one and only one found, assume it and copy it to basepath
+        copyfile (fullfile(suprapath,d2(1).name),txmlname)
+    else%otherwise get user input
+        [uifile,uipath] = uigetfile('.xml','Select Xml to copy into this folder for this recording')
+        copyfile (fullfile(uipath,uifile),txmlname)
+    end
+
+    [suprapath,~] = fileparts(basepath);%... look in the folder above 
+    underscores = findstr(basename,'_');
+    animalname = basename(1:underscores(1)-1);
+    d2 = dir(fullfile(suprapath,[animalname '.xml']));%for either animalname.xml
+    d3 = dir(fullfile(suprapath,'amplifier.xml'));% or amplifier.xml
+    d2 = cat(1,d2,d3);
+    if length(d2) == 1%if one and only one found, assume it and copy it to basepath
+        copyfile (fullfile(suprapath,d2(1).name),txmlname)
+    else%otherwise get user input
+        [uifile,uipath] = uigetfile('.xml','Select Xml to copy into this folder for this recording')
+        copyfile (fullfile(uipath,uifile),txmlname)
+    end
 end
 
 % basename = bz_BasenameFromBasepath(basepath);
