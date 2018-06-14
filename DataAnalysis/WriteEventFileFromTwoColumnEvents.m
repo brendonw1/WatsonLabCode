@@ -16,6 +16,7 @@ function WriteEventFileFromTwoColumnEvents (events,outputname)
 % timestampforevent2start 'on'
 % timestampforevent2stop 'on'
 % etc...
+% NEUROSCOPE EXPECTS TIME IN MILLISECONDS 
 %
 % Brendon Watson 2012-4
 

@@ -2,7 +2,7 @@ function spans = FindSettleBack(hightimes,signal,belowthresh)
 % Take list of times (hightimes), find when they settle back below the
 % value belowthresh both before and after the individual times nominated
 
-if size(hightimes,2) == 2;%if given pairwise inputs
+if size(hightimes,2) == 2%if given pairwise inputs
     hightimes = hightimes(:,1);
 end
 hightimes = hightimes(:);

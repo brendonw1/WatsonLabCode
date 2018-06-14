@@ -8,7 +8,7 @@ function epochs = IntersectEpochs(varargin)
 % epochs.
 % 
 % Via or by Sam McKenzie
-% Collected Brendon Watson 2017
+% Collected by Brendon Watson 2017
 
 if length(varargin)<2
     error('you must pass at least 2 input arguments of type ''epoch'''); 

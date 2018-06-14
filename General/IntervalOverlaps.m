@@ -17,24 +17,3 @@ i1 = find(sum(m,1));
 i1 = i1(:);
 i2 = find(sum(m,2));
 i2 = i2(:);
-% 
-% 
-% 
-% 
-% allintids = [];
-% allidxs = [];
-% 
-% for a = 1:size(int1,1)
-%     tbool = int1(a,1)>=int2(:,2) & int1(a,2)<=int2(:,1);
-%     
-%     tintids = a*tbool;
-%     tidxs = cumsum(tbool);
-%     tidxs(~tbool) = 0;
-% 
-%     allintids = cat(2,allintids,tintids);
-%     allidxs = cat(2,allidxs,tidxs);
-% end
-% 
-% status = logical(sum(allintids,2));
-% interval = sum(allintids,2);
-% index = sum(allidxs,2);
