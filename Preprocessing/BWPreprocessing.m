@@ -92,7 +92,7 @@ end
 
 
 %% Get sessioninfo... sort of partial metadata
-eval(['! neuroscope ' fullfile(basepath,[basename '.dat']) ' &'])
+% eval(['! neuroscope ' fullfile(basepath,[basename '.dat']) ' &'])
 if noPrompts
     sessionInfo = bz_getSessionInfo(basepath,'editGUI',false,'noPrompts',noPrompts);
 else
