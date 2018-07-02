@@ -119,14 +119,18 @@ end
 
 
 %% Make LFP file 
-disp('Converting .dat to .lfp')
+if ~exist(fullfile(basepath,[basename '.lfp'),'file')
+    disp('Converting .dat to .lfp')
 %datname = fullfile(basepath,[basename '.dat']);
 %lfpname = fullfile(basepath,[basename '.lfp']);
 %nchannels = length(sessionInfo.channels);
 %widebandsampfreq = sessionInfo.rates.wideband;
 %desiredLfpFreq = 1250;%user choice, 1250 is buzsakilab convention
 %ResampleBinary(datname,lfpname,nchannels,widebandsampfreq,desiredLfpFreq);
-bz_LFPFromDat(basepath)
+    bz_LFPFromDat(basepath)
+else
+    disp('Not converting .lfp file, since it already exists')
+end
 
 %% Sleep Scoring
 disp('Starting Sleep Scoring')
