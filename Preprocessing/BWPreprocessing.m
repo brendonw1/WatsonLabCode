@@ -119,7 +119,7 @@ end
 
 
 %% Make LFP file 
-if ~exist(fullfile(basepath,[basename '.lfp'),'file')
+if ~exist(fullfile(basepath,[basename '.lfp']),'file')
     disp('Converting .dat to .lfp')
 %datname = fullfile(basepath,[basename '.dat']);
 %lfpname = fullfile(basepath,[basename '.lfp']);
@@ -147,7 +147,7 @@ end
 if goodGPU
     try
         disp('Starting KiloSort')
-        KiloSortWrapper(basepath);
+        KiloSortWrapper('basepath',basepath);
 
         % To Klusters
         % Kilosort2Neurosuite(rez);
