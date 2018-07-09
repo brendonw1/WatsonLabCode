@@ -1,4 +1,7 @@
 function BWPreprocessing(basepath,noPrompts)
+% Inputs optional
+% 
+
 warning off
 
 if ~exist('basepath','var')
@@ -15,10 +18,10 @@ end
 noPrompts = logical(noPrompts);
 
 %% Optional: don't do it if already preprocessed... can comment this out
-if exist(fullfile(basepath,[basename,'.SleepState.states.mat']),'file');
-    disp([basename ' already done, skipping'])
-    return
-end
+% if exist(fullfile(basepath,[basename,'.SleepState.states.mat']),'file');
+%     disp([basename ' already done, skipping'])
+%     return
+% end
 
 %% Assuming one already did bz_SetAnimalMetadata
 % % if both the .mat and the Text.m files already exist in the basepath
@@ -70,9 +73,10 @@ if isempty(d)%if no basename.xml already in this folder
 %         copyfile (fullfile(suprapath,d2(1).name),txmlname)
 %     else%otherwise get user input
         [uifile,uipath] = uigetfile('.xml','Select Xml to copy into this folder for this recording');
-%         copyfile (fullfile(uipath,uifile),txmlname)
+        copyfile (fullfile(uipath,uifile),txmlname)
 %     end
 end
+
 
 % basename = bz_BasenameFromBasepath(basepath);
 % txmlname = fullfile(basepath,[basename '.xml']);
@@ -93,13 +97,14 @@ end
 
 %% Get sessioninfo... sort of partial metadata
 % eval(['! neuroscope ' fullfile(basepath,[basename '.dat']) ' &'])
-if noPrompts
-    sessionInfo = bz_getSessionInfo(basepath,'editGUI',false,'noPrompts',noPrompts);
-else
-    sessionInfo = bz_getSessionInfo(basepath,'editGUI',true,'noPrompts',noPrompts);
-end
-filename = fullfile(basepath,[basename,'.sessionInfo.mat']);
-save(filename,'sessionInfo'); 
+% if noPrompts
+%     sessionInfo = bz_getSessionInfo(basepath,'editGUI',false,'noPrompts',noPrompts);
+% else
+%     sessionInfo = bz_getSessionInfo(basepath,'editGUI',true,'noPrompts',noPrompts);
+% end
+% filename = fullfile(basepath,[basename,'.sessionInfo.mat']);
+% save(filename,'sessionInfo'); 
+sessionInfo = bz_getSessionInfo(basepath,'editGUI',true);
 
 
 %% Handling dat 
@@ -109,7 +114,7 @@ deleteoriginaldatsboolean = 0;
 bz_ConcatenateDats(basepath,deleteoriginaldatsboolean);
 
 %% Handling some dat metadata
-bz_DatFileMetadata(basepath)
+bz_DatFileMetadata(basepath);
 try
     TimeFromLightCycleStart(basepath);% Zeitgeber times of recording files
     RecordingSecondsToTimeSeconds(basepath,basename)
@@ -134,7 +139,7 @@ end
 
 %% Sleep Scoring
 disp('Starting Sleep Scoring')
-SleepScoreMaster(basepath);
+SleepScoreMaster(basepath,'noPrompts',noPrompts);
 
 %% Spike sorting
 try %figure out if gpu is present
