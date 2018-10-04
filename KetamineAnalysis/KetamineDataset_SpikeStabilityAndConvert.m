@@ -14,7 +14,7 @@ save([baseName,'_SAll.mat'],'S','shank','cellIx')
 manualbadcells = BadCellsFromClusteringNotes(baseName,shank,cellIx);
 
 %% Look at cellular stability using Mahalanobis distances and total spike energies
-SpikingAnalysis_CellStabilityScript
+SpikingAnalysis_CellStabilityScript(basepath)
 save([basename,'_SStable.mat'],'S','shank','cellIx','numgoodcells','badcells')
 
 %% Convert to buzcode
