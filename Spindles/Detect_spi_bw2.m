@@ -1,11 +1,11 @@
-function [ spindles, hv_spindles, normspindles, DetectionParams ] = Detect_spi_bw2(basename,num_CH, spi_CH, varargin )
+function [spindles, hv_spindles, normspindles, DetectionParams ] = Detect_spi_bw2(spi_CH, varargin )
 %Spindle Detection
 % uses FMAtoolbox adapted for detection, file saving, event file
 %        saving
 % input: 
 %       basename = string of pre-suffix name/path to lfp file (as in basename.lfp)
-%       num_CH = total number of channels in recording, channel for spindle analysis
-%          (+1 from neuroscope channel number), ensure .lfp file and -states.mat(from StateEditor) is in the folder
+% %       num_CH = total number of channels in recording, channel for spindle analysis
+% %          (+1 from neuroscope channel number), ensure .lfp file and -states.mat(from StateEditor) is in the folder
 %       spi_CH = index number of channel for spindle detection
 %       other inputs: see Properties table below
 % output: .mat file (named with basename+spi_CH)
@@ -26,10 +26,13 @@ function [ spindles, hv_spindles, normspindles, DetectionParams ] = Detect_spi_b
 %     'spindle band' = [start stop] pair of spindle band in hz, default is [10 20]Hz
 %     'durations' = [300 3000 200] (min inter-spindle interval, max spindle duration and
 %                           min spindle duration, in ms)
-%     'state'           select state between NREM, REM, WAKE
+%     'state'        select state between NREM, REM, WAKE and allstates -
+%                       default = all states
 %     'notch60'      boolean, 1 means to do 60Hz notch filter on 1250hz
 %                     neural data
+% Brendon Watson 2016-8
 
+warning off
 
 %% Parameter defaults
 % spi_thresholds = [2 3];
@@ -41,44 +44,48 @@ hvspi_highThresholdFactor = 12;
 state = 'allstates';
 state_name = state;
 detector = 'zugaro';
+basepath = cd;
 
 spindleband = [10 20];
 durations = [300 3000 200];
 notch60 = 0;
 
-if ~exist('basepath','var')
-    [~,basename,~] = fileparts(cd);
-    basepath = cd;
-end
+% if ~exist('basepath','var')
+% end
 
 %% Parse parameter list
-for i = 1:2:length(varargin),
-	if ~ischar(varargin{i}),
+for i = 1:2:length(varargin)
+	if ~ischar(varargin{i})
 		error(['Parameter ' num2str(i+2) ' is not a property (type ''help <a href="matlab:help FindRipples">FindRipples</a>'' for details).']);
 	end
-	switch(lower(varargin{i})),
-		case 'spi_thresholds',
+	switch(lower(varargin{i}))
+        case 'basepath'
+            basepath = varargin{i+1};
+		case 'spi_thresholds'
 			spi_thresholds = varargin{i+1};
 % 			if ~isivector(spi_thresholds,'#2','>0'),
 % 				error('Incorrect value for property ''thresholds'' (type ''help <a href="matlab:help FindRipples">FindRipples</a>'' for details).');
 % 			end
 			spi_lowThresholdFactor = spi_thresholds(1);
 			spi_highThresholdFactor = spi_thresholds(2);
-        case 'hvspi_thresholds',
+        case 'hvspi_thresholds'
 			hvspi_thresholds = varargin{i+1};
 % 			if ~isivector(hvspi_thresholds,'#2','>0'),
 % 				error('Incorrect value for property ''thresholds'' (type ''help <a href="matlab:help FindRipples">FindRipples</a>'' for details).');
 % 			end
 			hvspi_lowThresholdFactor = hvspi_thresholds(1);
 			hvspi_highThresholdFactor = hvspi_thresholds(2);
-        case 'state',
+        case 'state'
 			state = varargin{i+1};
             state_name = state;
             state = lower(state);
-			if ~isstring(state,'nrem','rem', 'wake','allstates'),
-				error('Incorrect value for property ''state'' (type ''help <a href="matlab:help FindRipples">FindRipples</a>'' for details).');
+			if ~ischar(state) 
+				error('Incorrect data type for property ''state''.  Must be a string');
+            end
+            if ~sum(strcmp(state,{'nrem','rem', 'wake','allstates'}))
+				error('Incorrect value for property ''state''. Must be one of these: ''nrem'',''rem'', ''wake'' or ''allstates''');
 			end
-        case 'durations',
+        case 'durations'
             durations = varargin{i+1};
         case 'detector'
             detector = varargin{i+1};
@@ -87,48 +94,73 @@ for i = 1:2:length(varargin),
         end
 end
 
+basename = bz_BasenameFromBasepath(basepath);
+
 DetectionParams = v2struct(spi_lowThresholdFactor,spi_highThresholdFactor,...
     hvspi_lowThresholdFactor,hvspi_highThresholdFactor,detector,...
-    spindleband, durations, notch60);
+    spindleband, durations, notch60,state);
             
-%% Open lfp file 
-eeglfppath = findsessioneeglfpfile(basepath,basename);
-lfp = LoadLfp(eeglfppath,num_CH,spi_CH);    
-
 %% States handling
 if ~strcmp(lower(state),'allstates')%if a specified state is entered, load state and restrict to that state... uses states from StateEditor
-    t = dir('*_WSRestrictedIntervals.mat*');
-    t = load (t.name);
+    ssfn = fullfile(basepath,[basename,'.SleepState.states.mat']);
+    if exist(ssfn,'file')
+        SleepState = bz_LoadStates(basepath,'SleepState');
+        if strcmp(lower(state),'nrem') | strcmp(lower(state),'sws')
+            stateints = SleepState.ints.NREMstate;
+        elseif strcmp(lower(state), 'rem')
+            stateints = SleepState.ints.REMstate;
+        else strcmp(lower(state), 'wake')
+            stateints = SleepState.ints.WAKEstate;
+        end
+    else %very old... may want to phase this out - BW 2018
+        t = dir('*_WSRestrictedIntervals.mat*');
+        t = load (t.name);
 
-    if strcmp(lower(state),'nrem') | strcmp(lower(state),'sws')
-        stateints = t.SWSPacketInts;
-    elseif strcmp(lower(state), 'rem'),
-        stateints = t.REMInts;
-    else strcmp(lower(state), 'wake'),
-        stateints = t.WakeInts;
+        if strcmp(lower(state),'nrem') | strcmp(lower(state),'sws')
+            stateints = t.SWSPacketInts;
+        elseif strcmp(lower(state), 'rem')
+            stateints = t.REMInts;
+        else strcmp(lower(state), 'wake')
+            stateints = t.WakeInts;
+        end
     end
-    
-    datatimes = Range(Restrict(lfp, stateints), 's');
-    datavalues = Data(Restrict(lfp, stateints));
+%     lfp = bz_RestrictLFPToIntervals(lfp,stateints);
+%         datatimes = Range(Restrict(lfp, stateints), 's');
+%         datavalues = Data(Restrict(lfp, stateints));
 else % if no state restriction specfied
-    datatimes = Range(lfp, 's');
-    datavalues = double(Data(lfp));
+%     datatimes = Range(lfp, 's');
+%     datavalues = double(Data(lfp));
+    stateints = [0 inf];
 end
-clear StateIntervals
+
+%% Open lfp file 
+% eeglfppath = findsessioneeglfpfile(basepath,basename);
+% lfp = LoadLfp(eeglfppath,num_CH,spi_CH);    
+lfp_orig = bz_GetLFP(spi_CH,'basepath',basepath,'intervals',stateints);
+lfpdata = [];
+lfptime = [];
+for idx = 1:size(lfp_orig,2)
+    lfpdata = cat(1,lfpdata,lfp_orig(idx).data);
+    lfptime = cat(1,lfptime,lfp_orig(idx).timestamps);    
+end
+lfp = lfp_orig(1);
+lfp.data = lfpdata;
+lfp.timestamps = lfptime;
+clear lfp_orig
 
 %% Filter60Hz if indicated
 if notch60
-    datavalues = notch60(datavalues);
+    datavalues = notch60(lfp.data);
 end
 
 %% Filter
 % fil_sleep = FilterLFP([Range(Restrict(lfp, state), 's') Data(Restrict(lfp, state))], 'passband', spindleband);
-filtered = FilterLFP([datatimes datavalues], 'passband', spindleband);
+filtered = bz_Filter(lfp, 'passband', spindleband);
 
 %% Detect all spindles
 switch detector
     case 'zugaro'
-        [spindles,sd,bad] = FindRipples_ForSpindlesBW(filtered,'thresholds', [spi_lowThresholdFactor spi_highThresholdFactor], 'durations', durations);
+        [spindles,sd,bad] = FindSpindlesBW(filtered.data,'thresholds', [spi_lowThresholdFactor spi_highThresholdFactor], 'durations', durations,'frequency',lfp.samplingRate);
     case 'simple'
         [spindles,sd,bad] = SimpleSpindleDetect(filtered,'thresholds', [spi_lowThresholdFactor spi_highThresholdFactor], 'durations', durations);
 end
@@ -140,8 +172,8 @@ spindle_events = strcat(basename, num2str(spi_CH), state_name, '.spi.evt');
 SaveSpindleEvents(spindle_events,spindles,spi_CH);
 
 %% Detect high voltage spindles
-hvfiltered = FilterLFP([datatimes datavalues], 'passband', [6 9]);
-[hv_spindles, sd, bad] = FindRipples_ForSpindlesBW(hvfiltered,'thresholds', [hvspi_lowThresholdFactor hvspi_highThresholdFactor], 'durations', durations);
+hvfiltered = bz_Filter(lfp, 'passband', [6 9]);
+[hv_spindles, sd, bad] = FindSpindlesBW(hvfiltered.data,'thresholds', [hvspi_lowThresholdFactor hvspi_highThresholdFactor], 'durations', durations);
 disp(['HV Spindle Detections: ' num2str(size(hv_spindles,1))])
 
 %% Write HVS outputs
@@ -152,7 +184,7 @@ SaveSpindleEvents(hv_spindle_events,hv_spindles,spi_CH);
 
 %% Detect normal sleep spindles only
 normspindles = spindles;
-[r, c] = size(hv_spindles);
+[r, ~] = size(hv_spindles);
 for i = length(spindles):-1:1                              %r = # rows in hv_spindles
     for j = 1:r
         if hv_spindles(j, 1) < spindles(i, 3) && spindles(i, 1) < hv_spindles(j, 3)         %test for overlap
@@ -175,7 +207,7 @@ SaveSpindleEvents(normspindle_events,normspindles_final,spi_CH);
 
 function [spindles,sd,bad] = SimpleSpindleDetect(filtered,varargin)
 % Default values
-frequency = 1250;
+sampFreq = 1250;
 show = 'off';
 restrict = [];
 sd = [];
@@ -187,29 +219,29 @@ minSpindleDuration = 20; % in ms
 noise = [];
 
 % Check number of parameters
-if nargin < 1 | mod(length(varargin),2) ~= 0,
+if nargin < 1 || mod(length(varargin),2) ~= 0
   error('Incorrect number of parameters (type ''help <a href="matlab:help FindRipples">FindRipples</a>'' for details).');
 end
 
 % Check parameter sizes
-if ~isdmatrix(filtered) | size(filtered,2) ~= 2,
+if ~isdmatrix(filtered) || size(filtered,2) ~= 2
 	error('Parameter ''filtered'' is not a Nx2 matrix (type ''help <a href="matlab:help FindRipples">FindRipples</a>'' for details).');
 end
 
 % Parse parameter list
-for i = 1:2:length(varargin),
-	if ~ischar(varargin{i}),
+for i = 1:2:length(varargin)
+	if ~ischar(varargin{i})
 		error(['Parameter ' num2str(i+2) ' is not a property (type ''help <a href="matlab:help FindRipples">FindRipples</a>'' for details).']);
 	end
-	switch(lower(varargin{i})),
-		case 'thresholds',
+	switch(lower(varargin{i}))
+		case 'thresholds'
 			thresholds = varargin{i+1};
 % 			if ~isivector(thresholds,'#2','>0'),
 % 				error('Incorrect value for property ''thresholds'' (type ''help <a href="matlab:help FindRipples">FindRipples</a>'' for details).');
 % 			end
 			lowThresholdFactor = thresholds(1);
 			highThresholdFactor = thresholds(2);
-		case 'durations',
+		case 'durations'
 			durations = varargin{i+1};
 % 			if ~isivector(durations,'#3','>0'),
 % 				error('Incorrect value for property ''durations'' (type ''help <a href="matlab:help FindRipples">FindRipples</a>'' for details).');
@@ -217,39 +249,39 @@ for i = 1:2:length(varargin),
 			minInterSpindleInterval = durations(1);
 			maxSpindleDuration = durations(2);
 			minSpindleDuration = durations(3);
-		case 'frequency',
-			frequency = varargin{i+1};
-			if ~isdscalar(frequency,'>0'),
+		case 'frequency'
+			sampFreq = varargin{i+1};
+			if ~isdscalar(sampFreq,'>0')
 				error('Incorrect value for property ''frequency'' (type ''help <a href="matlab:help FindRipples">FindRipples</a>'' for details).');
 			end
-		case 'show',
+		case 'show'
 			show = varargin{i+1};
-			if ~isstring(show,'on','off'),
+			if ~isstring(show,'on','off')
 				error('Incorrect value for property ''show'' (type ''help <a href="matlab:help FindRipples">FindRipples</a>'' for details).');
 			end
-		case {'baseline','restrict'},
+		case {'baseline','restrict'}
 			restrict = varargin{i+1};
 			if ~isempty(restrict) & ~isdvector(restrict,'#2','<'),
 				error('Incorrect value for property ''restrict'' (type ''help <a href="matlab:help FindRipples">FindRipples</a>'' for details).');
 			end
-		case 'stdev',
+		case 'stdev'
 			sd = varargin{i+1};
-			if ~isdscalar(sd,'>0'),
+			if ~isdscalar(sd,'>0')
 				error('Incorrect value for property ''stdev'' (type ''help <a href="matlab:help FindRipples">FindRipples</a>'' for details).');
 			end
-		case 'noise',
+		case 'noise'
 			noise = varargin{i+1};
 			if ~isdmatrix(noise) | size(noise,1) ~= size(filtered,1) | size(noise,2) ~= 2,
 				error('Incorrect value for property ''noise'' (type ''help <a href="matlab:help FindRipples">FindRipples</a>'' for details).');
 			end
-		otherwise,
+        otherwise
 			error(['Unknown property ''' num2str(varargin{i}) ''' (type ''help <a href="matlab:help FindRipples">FindRipples</a>'' for details).']);
 	end
 end
 
 
 % Parameters
-windowLength = round(frequency/1250*11);%11 is arbitrary
+windowLength = round(sampFreq/1250*11);%11 is arbitrary
 window = ones(windowLength,1)/windowLength;
 
 % Square and normalize signal
@@ -259,7 +291,7 @@ env = hilbertenvelope(filtered(:,2));
 normenv = zscore(Filter0(window,env));
 
 %find and get rid of artifacts... >10SD above mean when smoothed
-denoisewindow = frequency/5;%arbitrary smoothing
+denoisewindow = sampFreq/5;%arbitrary smoothing
 smoothed = smooth(normenv,denoisewindow);
 toohigh = continuousabove2(smoothed,10,1,inf);%find times where it was too high
 spans = FindSettleBack(toohigh,smoothed,lowThresholdFactor);%find full span where above theshold of 2SD
@@ -296,7 +328,7 @@ if isempty(firstPass),
 end
 
 % Merge events if inter-spindle period is too short
-minInterSpindleSamples = minInterSpindleInterval/1000*frequency;
+minInterSpindleSamples = minInterSpindleInterval/1000*sampFreq;
 secondPass = [];
 spindle = firstPass(1,:);
 for i = 2:size(firstPass,1)
@@ -446,8 +478,8 @@ if strcmp(show,'on'),
 end
 
 
-function [spindles,sd,bad] = FindRipples_ForSpindlesBW(filtered,varargin)
-
+function [spindles,sd,bad] = FindSpindlesBW(filteredlfp,varargin)
+% Based on Zugaro's FindRipples (below)
 %FindRipples - Find hippocampal ripples (100~200Hz oscillations).
 %
 %  USAGE
@@ -461,7 +493,7 @@ function [spindles,sd,bad] = FindRipples_ForSpindlesBW(filtered,varargin)
 %    the NSS. Alternatively, one can use explicit values, typically obtained
 %    from a previous call.
 %
-%    filtered       ripple-band filtered LFP (one channel).
+%    filteredsig    ripple-band filtered LFP (one channel, no timestamps).
 %    <options>      optional list of property-value pairs (see table below)
 %
 %    =========================================================================
@@ -473,12 +505,14 @@ function [spindles,sd,bad] = FindRipples_ForSpindlesBW(filtered,varargin)
 %                   (default = [30 100 20])
 %     'baseline'    interval used to compute normalization (default = all)
 %     'restrict'    same as 'baseline' (for backwards compatibility)
-%     'frequency'   sampling rate (in Hz) (default = 1250Hz)
+%     'sampFreq'    sampling rate (in Hz) (default = 1250Hz)
 %     'stdev'       reuse previously computed stdev
 %     'show'        plot results (default = 'off')
 %     'noise'       noisy ripple-band filtered channel used to exclude ripple-
 %                   like noise (events also present on this channel are
 %                   discarded)
+%     'timestamps'  vector of times corresponding with each data point
+%                   given in filteredlfp.  Default is linear using sampfreq
 %    =========================================================================
 %
 %  OUTPUT
@@ -500,7 +534,7 @@ function [spindles,sd,bad] = FindRipples_ForSpindlesBW(filtered,varargin)
 % (at your option) any later version.
 
 % Default values
-frequency = 1250;
+sampFreq = 1250;
 show = 'off';
 restrict = [];
 sd = [];
@@ -510,16 +544,17 @@ minInterWaveInterval = 30; % in ms
 maxRippleDuration = 100; % in ms
 minRippleDuration = 20; % in ms
 noise = [];
+timestamps =  1/sampFreq * 1:length(filteredlfp);
 
 % Check number of parameters
 if nargin < 1 | mod(length(varargin),2) ~= 0,
   error('Incorrect number of parameters (type ''help <a href="matlab:help FindRipples">FindRipples</a>'' for details).');
 end
 
-% Check parameter sizes
-if ~isdmatrix(filtered) | size(filtered,2) ~= 2,
-	error('Parameter ''filtered'' is not a Nx2 matrix (type ''help <a href="matlab:help FindRipples">FindRipples</a>'' for details).');
-end
+% % Check parameter sizes
+% if ~ismatrix(filteredsig) | 
+% 	error('Parameter ''filtered'' is not a Nx2 matrix (type ''help <a href="matlab:help FindRipples">FindRipples</a>'' for details).');
+% end
 
 % Parse parameter list
 for i = 1:2:length(varargin),
@@ -543,8 +578,8 @@ for i = 1:2:length(varargin),
 			maxRippleDuration = durations(2);
 			minRippleDuration = durations(3);
 		case 'frequency',
-			frequency = varargin{i+1};
-			if ~isdscalar(frequency,'>0'),
+			sampFreq = varargin{i+1};
+			if ~isdscalar(sampFreq,'>0'),
 				error('Incorrect value for property ''frequency'' (type ''help <a href="matlab:help FindRipples">FindRipples</a>'' for details).');
 			end
 		case 'show',
@@ -564,32 +599,38 @@ for i = 1:2:length(varargin),
 			end
 		case 'noise',
 			noise = varargin{i+1};
-			if ~isdmatrix(noise) | size(noise,1) ~= size(filtered,1) | size(noise,2) ~= 2,
+			if ~isdmatrix(noise) | size(noise,1) ~= size(filteredlfp,1) | size(noise,2) ~= 2,
 				error('Incorrect value for property ''noise'' (type ''help <a href="matlab:help FindRipples">FindRipples</a>'' for details).');
+			end
+		case 'timestamps',
+			s = varargin{i+1}(:);
+			if ~isdmatrix(timestamps) | length(timestamps,1) ~= length(filteredlfp,1) 
+				error('Incorrect value for property ''timepoints.');
 			end
 		otherwise,
 			error(['Unknown property ''' num2str(varargin{i}) ''' (type ''help <a href="matlab:help FindRipples">FindRipples</a>'' for details).']);
 	end
 end
 
+timestamps = timestamps(:);
+
 % Parameters
-windowLength = round(frequency/1250*11);%11 is arbitrary
+windowLength = round(sampFreq/1250*11);%11 is arbitrary
 window = ones(windowLength,1)/windowLength;
 
 % Square and normalize signal
-signal = filtered(:,2);
-squaredSignal = signal.^2;
+squaredSignal = filteredlfp.^2;
 window = ones(windowLength,1)/windowLength;
 keep = [];
-if ~isempty(restrict),
-	keep = filtered(:,1)>=restrict(1)&filtered(:,1)<=restrict(2);
+if ~isempty(restrict)
+	keep = filteredlfp(:,1)>=restrict(1)&filteredlfp(:,1)<=restrict(2);
 end
 
-[normalizedSquaredSignal,tsd] = unity(Filter0(window,sum(squaredSignal,2)),sd,keep);
-disp(sd)
+[normalizedSquaredSignal,~] = unity(Filter0(window,sum(squaredSignal,2)),sd,keep);
+% disp(sd)
 
 %find and get rid of artifacts... >10SD above mean when smoothed
-denoisewindow = frequency/5;
+denoisewindow = sampFreq/5;
 smoothed = smooth(normalizedSquaredSignal,denoisewindow);
 toohigh = continuousabove2(smoothed,10,1,inf);%find times where it was too high
 spans = FindSettleBack(toohigh,smoothed,lowThresholdFactor);%find full span where above theshold of 2SD
@@ -624,7 +665,7 @@ if isempty(firstPass),
 end
 
 % Merge waves if inter-wave period is too short
-minInterWaveSamples = minInterWaveInterval/1000*frequency;
+minInterWaveSamples = minInterWaveInterval/1000*sampFreq;
 secondPass = [];
 wave = firstPass(1,:);
 for i = 2:size(firstPass,1)
@@ -665,13 +706,13 @@ end
 % Detect negative peak position for each spindle
 peakPosition = zeros(size(thirdPass,1),1);
 for i=1:size(thirdPass,1),
-	[minValue,minIndex] = min(signal(thirdPass(i,1):thirdPass(i,2)));
+	[minValue,minIndex] = min(filteredlfp(thirdPass(i,1):thirdPass(i,2)));
 	peakPosition(i) = minIndex + thirdPass(i,1) - 1;
 end
 
 % Discard spindles that are way too long
-time = filtered(:,1);
-spindles = [time(thirdPass(:,1)) time(peakPosition) time(thirdPass(:,2)) peakNormalizedPower];
+% time = filtered(:,1);
+spindles = [timestamps(thirdPass(:,1)) timestamps(peakPosition) timestamps(thirdPass(:,2)) peakNormalizedPower];
 duration = spindles(:,3)-spindles(:,1);
 spindles(duration>maxRippleDuration/1000,:) = [];
 % disp(['After max duration test: ' num2str(size(spindles,1)) ' events.']);
@@ -692,10 +733,10 @@ if ~isempty(noise),
 	excluded = logical(zeros(size(spindles,1),1));
 	% Exclude ripples when concomittent noise crosses high detection threshold
 	previous = 1;
-	for i = 1:size(spindles,1),
+	for i = 1:size(spindles,1)
 		j = FindInInterval(noise,[spindles(i,1),spindles(i,3)],previous);
 		previous = j(2);
-		if any(normalizedSquaredNoise(j(1):j(2))>highThresholdFactor),
+		if any(normalizedSquaredNoise(j(1):j(2))>highThresholdFactor)
 			excluded(i) = 1;
 		end
 	end
@@ -730,43 +771,43 @@ end
 
 
 % Optionally, plot results
-if strcmp(show,'on'),
+if strcmp(show,'on')
 	figure;
-	if ~isempty(noise),
-		MultiPlotXY([time signal],[time squaredSignal],[time normalizedSquaredSignal],[time noise(:,2)],[time squaredNoise],[time normalizedSquaredNoise]);
+	if ~isempty(noise)
+		MultiPlotXY([timestamps filteredlfp],[timestamps squaredSignal],[timestamps normalizedSquaredSignal],[timestamps noise(:,2)],[timestamps squaredNoise],[timestamps normalizedSquaredNoise]);
 		nPlots = 6;
 		subplot(nPlots,1,3);
  		ylim([0 highThresholdFactor*1.1]);
 		subplot(nPlots,1,6);
   		ylim([0 highThresholdFactor*1.1]);
 	else
-		MultiPlotXY([time signal],[time squaredSignal],[time normalizedSquaredSignal]);
+		MultiPlotXY([timestamps filteredlfp],[timestamps squaredSignal],[timestamps normalizedSquaredSignal]);
 %  		MultiPlotXY(time,signal,time,squaredSignal,time,normalizedSquaredSignal);
 		nPlots = 3;
 		subplot(nPlots,1,3);
   		ylim([0 highThresholdFactor*1.1]);
 	end
-	for i = 1:nPlots,
+	for i = 1:nPlots
 		subplot(nPlots,1,i);
 		hold on;
   		yLim = ylim;
-		for j=1:size(spindles,1),
+		for j=1:size(spindles,1)
 			plot([spindles(j,1) spindles(j,1)],yLim,'g-');
 			plot([spindles(j,2) spindles(j,2)],yLim,'k-');
 			plot([spindles(j,3) spindles(j,3)],yLim,'r-');
-			if i == 3,
+			if i == 3
 				plot([spindles(j,1) spindles(j,3)],[spindles(j,4) spindles(j,4)],'k-');
 			end
 		end
-		for j=1:size(bad,1),
+		for j=1:size(bad,1)
 			plot([bad(j,1) bad(j,1)],yLim,'k-');
 			plot([bad(j,2) bad(j,2)],yLim,'k-');
 			plot([bad(j,3) bad(j,3)],yLim,'k-');
-			if i == 3,
+			if i == 3
 				plot([bad(j,1) bad(j,3)],[bad(j,4) bad(j,4)],'k-');
 			end
 		end
-		if mod(i,3) == 0,
+		if mod(i,3) == 0
 			plot(xlim,[lowThresholdFactor lowThresholdFactor],'k','linestyle','--');
 			plot(xlim,[highThresholdFactor highThresholdFactor],'k-');
 		end
@@ -845,4 +886,36 @@ end
 
 SaveEvents(filename,events);
 
+
+function channelData = notch60(channelData)
+%60Hz filters a 1250hz file, such as a .eeg file.  The data should be in
+%the vector input vect
+% Notch60HzFor1250Hz made using fdatool
+
+hd = Notch60HzFor1250Hz;
+channelData = filter(hd,channelData);        
+
+
+function Hd = Notch60HzFor1250Hz
+%NOTCH60HZFOR1250HZ Returns a discrete-time filter object.
+
+% MATLAB Code
+% Generated by MATLAB(R) 8.2 and the Signal Processing Toolbox 6.20.
+% Generated on: 20-Feb-2015 14:27:35 using fdatool
+
+% Chebyshev Type II Bandstop filter designed using FDESIGN.BANDSTOP.
+
+% All frequency values are in Hz.
+Fs = 1250;  % Sampling Frequency
+
+N      = 14;  % Order
+Fstop1 = 59;  % First Stopband Frequency
+Fstop2 = 61;  % Second Stopband Frequency
+Astop  = 80;  % Stopband Attenuation (dB)
+
+% Construct an FDESIGN object and call its CHEBY2 method.
+h  = fdesign.bandstop('N,Fst1,Fst2,Ast', N, Fstop1, Fstop2, Astop, Fs);
+Hd = design(h, 'cheby2');
+
+% [EOF]
 

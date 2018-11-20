@@ -21,6 +21,10 @@ function ExecuteOnKetamineDatasets(executestring,varargin)
 varstograb = varargin;
 
 %% Cycle through datasets and excute string
-for a = 1:length(dirs);
+for a = 1:length(dirs)
+    disp(['Starting ' names{a}])
+    basename = names{a};
+    basepath = dirs{a};
+
     eval(executestring)
 end

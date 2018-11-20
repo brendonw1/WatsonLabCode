@@ -132,7 +132,7 @@ if ~exist(fullfile(basepath,[basename '.lfp']),'file')
 %widebandsampfreq = sessionInfo.rates.wideband;
 %desiredLfpFreq = 1250;%user choice, 1250 is buzsakilab convention
 %ResampleBinary(datname,lfpname,nchannels,widebandsampfreq,desiredLfpFreq);
-    bz_LFPFromDat(basepath)
+    bz_LFPfromDat(basepath)
 else
     disp('Not converting .lfp file, since it already exists')
 end

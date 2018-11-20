@@ -1,6 +1,24 @@
+function SpikingAnalysis_CellStabilityScript(basepath)
+% Get rid of unstable cells - fit slope to energy for each spike over recording and if
+% slope has absolute value greater than 0.3, call cell unstable and
+% eliminate from analysis pool
+
+if ~exist('basepath','var')
+    basepath = cd;
+end
+basename = bz_BasenameFromBasepath(basepath);
+
+%%
+sessionInfo = bz_getSessionInfo(basepath);
+
+%% Load spikes
+load(fullfile(basepath,[basename, '_SAll.mat']));
+if ~exist('manualbadscells','var')
+    manualbadcells = [];
+end
 
 % [SpikeEnergiesCell,MahalDistancesCell] = AllCellsEnergyMahalPerSpike(S,shank,cellIx,basename);
-[SpikeEnergiesCell,SelfMahalDistancesCell,LRatios,IsoDistances,ISIIndices] = ClusterQualityMetrics(S,shank,cellIx,basename,Par);
+[SpikeEnergiesCell,SelfMahalDistancesCell,LRatios,IsoDistances,ISIIndices] = ClusterQualityMetrics(basepath,S,shank,cellIx,basename,sessionInfo);
 
 % MahalDistances = AllCellsMahalPerSpike(S,shank,cellIx,basename);
 for a = 1:size(S,1);

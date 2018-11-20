@@ -55,8 +55,8 @@ for a = 1:length(length(WakeInts))
     %     WakeICAOntoSWS_NS = ProjectNonSigAssembliesOntoBinnedMatrix_NoPlot(ICAAssDataWakeA,RateMtxSWSA);
       % non-signif doesn't work with ICA... I think
 
-    WakeBinned = MakeQfromS(Se,WakeBins);%bin every 1000pts, which is 100msec (10000 pts per sec)
-    RateMtxWakeE{a} = Data(WakeBinned);
+    WakeBinnedE = MakeQfromS(Se,WakeBins);%bin every 1000pts, which is 100msec (10000 pts per sec)
+    RateMtxWakeE{a} = Data(WakeBinnedE);
     WSBinned = MakeQfromS(Se,WSBins);%bin every 1000pts, which is 100msec (10000 pts per sec)
     RateMtxWSE{a} = Data(WSBinned);
     [ICAAssTemplatesWakeE{a},th] = GetICAAssembliesPrebinnedNoProj(RateMtxWakeE{a},SecondsPerBin);

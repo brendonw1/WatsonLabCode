@@ -1,4 +1,4 @@
-function [Energies,SelfDistances,LRatios,IsoDistances,ISIIndices] = ClusterQualityMetrics(S,shank,cellIx,basename,Par)
+function [Energies,SelfDistances,LRatios,IsoDistances,ISIIndices] = ClusterQualityMetrics(basepath,S,shank,cellIx,basename,sessionInfo)
 % Calculates cluster a number of cluster quality and spike quality metrics
 % for all clusters (and in some cases all spikes).
 % total spike energy for each spike from each cell from the
@@ -9,6 +9,7 @@ function [Energies,SelfDistances,LRatios,IsoDistances,ISIIndices] = ClusterQuali
 
 % loadedshanks = [];
 loadedshanks = 0;
+basename = bz_BasenameFromBasepath(basepath);
 
 % [allres,allclu] = oneSeries(S);
 % allres = TimePoints(allres);
@@ -54,18 +55,21 @@ for cidx = 1:size(S,1)%for each cell
     if loadedshanks~=thisshank
        disp(['Starting Shank ',num2str(thisshank)]);
        [thisfet,dummy] = LoadFeatures([basename,'.fet.',num2str(thisshank)]);
-       [thisres,thisclu,dummy,dummy]=LoadCluRes(basename,thisshank);
-       [thisclu,dummy] = LoadClu([basename,'.clu.',num2str(thisshank)]);
+       thisclu = load(fullfile(basepath,[basename,'.clu.',num2str(thisshank)]));
+       thisclu = thisclu(2:end); % toss the first sample to match res/spk files
+       thisres = load(fullfile(basepath,[basename,'.res.',num2str(thisshank)]));
+%        [thisres,thisclu,dummy,dummy]=LoadCluRes(basename,thisshank);
+%        [thisclu,dummy] = LoadClu([basename,'.clu.',num2str(thisshank)]);
        loadedshanks = thisshank;
     end
     thesespikeindices = thisclu == thisid;
     thiscellfet = thisfet(thesespikeindices,:);
 
-    numChannelsThisShank = length(Par.SpkGrps(thisshank).Channels);
-    featuresPerChannel = Par.SpkGrps(thisshank).nFeatures;
+    numChannelsThisShank = length(sessionInfo.SpkGrps(thisshank).Channels);
+    featuresPerChannel = sessionInfo.SpkGrps(thisshank).nFeatures;
     numNonRedundantFeatures = numChannelsThisShank*featuresPerChannel;
     thiscellfet = thiscellfet(:,1:numNonRedundantFeatures);
-    thiscellfet2 = thiscellfet(:,1:3:numNonRedundantFeatures);%just taking the amplitudes of the first components
+    thiscellfet2 = thiscellfet(:,1:featuresPerChannel:numNonRedundantFeatures);%just taking the amplitudes of the first components
 
     Energies{cidx} = (sum(thiscellfet2.^2,2)).^.5;
         

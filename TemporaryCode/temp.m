@@ -1,14 +1,21 @@
-function temp(basepath)
+function KetamineDataset_SpikeStabilityAndConvert(basepath)
 
-if ~exist('basepath','var')
+if ~exist('baspath','var')
     basepath = cd;
 end
-basename = bz_BasenameFromBasepath(basepath);
+baseName = bz_BasenameFromBasepath(basepath);
 
-if ~exist(fullfile(basepath,'StatesFromWatson2016'),'dir')
-    disp('making dir')
-    mkdir(fullfile(basepath,'StatesFromWatson2016'));
-end
-copyfile(fullfile(basepath,[basename,'-states.mat']),fullfile(basepath,'StatesFromWatson2016',[basename,'-states.mat']))
-copyfile(fullfile(basepath,[basename,'.SleepState.states.mat']),fullfile(basepath,'StatesFromWatson2016',[basename,'.SleepState.states.mat']))
-copyfile(fullfile(basepath,[basename,'.SleepStateEpisodes.states.mat']),fullfile(basepath,'StatesFromWatson2016',[basename,'.SleepStateEpisodes.states.mat']))
+[S,shank,cellIx] = LoadSpikeData(baseName);
+save([baseName,'_SAll.mat'],'S','shank','cellIx')
+
+%load([basename,'_SAll.mat'])
+
+%% Load Bad Cells from manual basename_ClusteringNotes.csv (if exists)
+manualbadcells = BadCellsFromClusteringNotes(baseName,shank,cellIx);
+
+%% Look at cellular stability using Mahalanobis distances and total spike energies
+SpikingAnalysis_CellStabilityScript
+save([basename,'_SStable.mat'],'S','shank','cellIx','numgoodcells','badcells')
+
+%% Convert to buzcode
+ConvertSStableToBuzcodeSpikes(basepath)
