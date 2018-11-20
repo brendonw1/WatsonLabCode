@@ -13,9 +13,12 @@ sessionInfo = bz_getSessionInfo(basepath);
 
 %% Load spikes
 load(fullfile(basepath,[basename, '_SAll.mat']));
+<<<<<<< HEAD
 if ~exist('manualbadscells','var')
     manualbadcells = [];
 end
+=======
+>>>>>>> master
 
 % [SpikeEnergiesCell,MahalDistancesCell] = AllCellsEnergyMahalPerSpike(S,shank,cellIx,basename);
 [SpikeEnergiesCell,SelfMahalDistancesCell,LRatios,IsoDistances,ISIIndices] = ClusterQualityMetrics(basepath,S,shank,cellIx,basename,sessionInfo);
