@@ -23,6 +23,9 @@ function [HAx, Hbar, Herr,siaxh,piaxh] = plot_meanSD_bars(varargin)
 % siaxh: axis handle for t-test significance inset
 % piaxh: axis handle for rank-sum significance inset
 
+
+plotallon = 1; %controls whether or not to plot all single points as overlay.  1 = do it. 
+
 labels = {};
 
 if nargin == 1
@@ -57,6 +60,8 @@ color = 'b';
 
 
 xvals = 1:length(datatoplot);
+alldatatoplot = [];
+allxvals = [];
 for a = 1:length(datatoplot)
     data = datatoplot{a};
     if ismember(1,size(data))
@@ -64,6 +69,9 @@ for a = 1:length(datatoplot)
     end
     means(a) = mean(data,1);
     SDs(a) = std(data,0,1);
+    
+    alldatatoplot = cat(1,alldatatoplot,data);
+    allxvals = cat(1,allxvals,a*ones(size(data,1),1));
 end
 
 
@@ -78,6 +86,11 @@ else %If pos & neg, do double error bars
     Herr = errorbar(xvals,means,SDs,SDs,'Color','k','Marker','none','LineStyle','none');
 end    
 set(gca,'XTick',1:length(labels),'XTickLabel',labels)
+
+%plot all single points
+if plotallon == 1
+    plot(allxvals,alldatatoplot,'*k')
+end
 
 %% Significance testing
 % signifs = zeros(length(datatoplot));
@@ -112,3 +125,6 @@ piaxh = AxesInsetImage(HAx,[.1 .1],wps);
 set(piaxh,'XTick',[],'YTick',[])
 title('WxP')
 hold on
+
+%% reset focus
+% axes(HAx) %can't do this - hides insets
