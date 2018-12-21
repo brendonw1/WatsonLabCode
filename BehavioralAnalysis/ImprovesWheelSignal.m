@@ -13,7 +13,7 @@ function output = ImprovesWheelSignal(data,f,varargin)
 % data -> vector with raw wheel data, i.e., a continuous voltage signal.
 % Can be single- or double-precision.
 %
-% f -> sampling frequency (optional). If this is informed, the script shows
+% f -> Optional sampling frequency. If this is informed, the script shows
 % a quality control figure in addition to the output vector.
 %
 % LSBuenoJr _______________________________________________________________
