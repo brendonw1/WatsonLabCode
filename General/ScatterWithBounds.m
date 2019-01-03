@@ -31,7 +31,7 @@ text(0.8,0.15,['R = ' num2str(round(R(2,1),3))],'Units','normalized')
 if P(2,1) < 0.001
     text(0.8,0.10,'P < 0.001','Units','normalized')
 else
-    text(0.8,0.15,['P = ' num2str(round(P(2,1),3))],'Units','normalized')
+    text(0.8,0.10,['P = ' num2str(round(P(2,1),3))],'Units','normalized')
 end
 
 switch nargin
