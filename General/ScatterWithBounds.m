@@ -23,7 +23,7 @@ function ScatterWithBounds(data,x_lim,y_lim)
 %% Figure
 fitresult = fit(data(:,1),data(:,2),'poly1');
 
-figure;scatter(data(:,1),data(:,2));hold on;plot(fitresult,'k');
+scatter(data(:,1),data(:,2));hold on;plot(fitresult,'k');
 plot(data(:,1),predint(fitresult,data(:,1),0.95),'k.');
 set(legend,'visible','off');ylabel([]);xlabel([])
 
