@@ -7,8 +7,9 @@ function PoleLocTraining
 % - Phase 2: two-location discrimination
 % - Phase 3: multiple location test
 %
-% Necessary hardware:
 %
+%
+% NECESSARY HARDWARE ______________________________________________________
 % - Bpod State Machine combined with Bpod Analog Output Module (USB ports
 %   COM10 and COM6, respectively): reads task parameters, controls trial
 %   loops, sends commands to Zaber actuators, gets mouse responses at the
@@ -19,6 +20,17 @@ function PoleLocTraining
 % - Zaber X-MCB2 (USB port COM8): responds to inputs from both Bpod devices
 %   through triggers configured by a custom script in C#, named
 %   PoleLocTriggers.cs (also available in this repository).
+%
+%
+%
+% OPTIONAL HARDWARE _______________________________________________________
+% - Intan RHD2000: acquires digital and analog events to be used as
+%   timestamps during analysis.
+%
+% - Whisker imaging camera (Mikrotron, EoSens) and frame grabber
+%   (Teledyne Dalsa Xtium): not described here
+%
+% - Pupil imaging camera (Flea3) and PCIe card: not described here
 %
 % TASK DESIGN (GO/NO-GO) __________________________________________________
 % - Whisker (pole) stimulation -> Response window -> inter-trial interval
@@ -46,6 +58,8 @@ function PoleLocTraining
 % See the second section of this script ("Sets parameters") for stimulus
 % durations, inter-trial intervals, etc.
 %
+%
+%
 % USAGE ___________________________________________________________________
 % Step 1: Load the Zaber Console software, open the X-MCB2 device, and run
 % PoleLocTriggers.cs to set the triggers. Check if "completed" appears in
@@ -53,8 +67,8 @@ function PoleLocTraining
 %
 % Step 2: Enter "Bpod" in the Command Window, and wait until the Bpod
 % Console is ready. Then enter "PoleLocTraining", and respond to the
-% training phase prompt. TTLs should be visible in the Intan RHD interface,
-% provided that cabling is set up correctly.
+% training phase prompt. Digital and analog events should be visible in the
+% Intan RHD interface, provided that cabling is set up correctly.
 %
 % LSBuenoJr and MXDing, with inputs from the Sanworks Support Forum _______
 
@@ -510,11 +524,11 @@ sma = SetGlobalTimer(sma,...
 sma = AddState(sma,'Name','TrialStart',...
     'Timer',0.1,...
     'StateChangeConditions',{'Tup','PreStim'},...
-    'OutputActions',{'GlobalTimerTrig',1}); % Used to deliver the trial
-                                            % onset cue (light) using
-                                            % " 'PWM1',200, " before the
-                                            % Global Timer (supppressed in
-                                            % this task design).
+    'OutputActions',{'GlobalTimerTrig',1}); % Formerly with " 'PWM1',200, "
+                                            % before the Global Timer to
+                                            % deliver the trial onset cue
+                                            % (light). This was supppressed
+                                            % in this monosensory task design).
 
 sma = AddState(sma,'Name','PreStim',...
     'Timer',S.GUI.PreStimPeriod,...
