@@ -20,17 +20,15 @@ function BarrelPiezo
 %
 %
 % OPTIONAL HARDWARE _______________________________________________________
-% - Intan RHD2000: acquires digital and analog events to be used as
-%   timestamps during analysis.
-%
 % - Barrel imaging camera (PhotonFocus MV1) and gigabit ethernet interface
 %   card: not described here.
 %
 %
+%
 % STIMULATION PATTERN _____________________________________________________
-% - Waveform -> Inter-stimulus interval (ITI) -> Waveform -> ... and so on.
-% - Waveform: sinusoidal, 10 V amplitude (+/- 5 V), 20 Hz, 1 s duration
-% - ITI     : 3 s
+% - Waveform -> Inter-stimulus interval (ISI) -> Waveform -> ... and so on.
+% - Waveform: sinusoidal, 10 V amplitude (+/- 5 V), 20 Hz, 0.5 s duration
+% - ISI     : 3.5 s
 %
 %
 %
@@ -59,7 +57,7 @@ W.TriggerProfiles(1,1:2) = 1:2; % BNC #1 sends +/- 5V waveforms to Dagan
                                 
 DagVolt = 5;  % +/- to Dagan
 Freq    = 20; % Hz
-StimDur = 1;  % 1 sec stimulation        
+StimDur = 0.5;  % 1 sec stimulation        
                                 
 W.loadWaveform(1,DagVolt*sin(Freq*2*pi/W.SamplingRate:...
     Freq*2*pi/W.SamplingRate:Freq*2*pi*StimDur));   % to Dagan
@@ -73,8 +71,8 @@ W.loadWaveform(2,sin(Freq*2*pi/W.SamplingRate:...
 S.SweepLength        = 4; % In seconds
 S.NoAction           = 0;
 S.PreStimPeriod      = 0;
-S.StimWindow         = 1;
-S.PostStimPeriod     = 2;
+S.StimWindow         = StimDur;
+S.PostStimPeriod     = 2.5;
 
 
 
@@ -113,7 +111,8 @@ sma = AddState(sma,'Name','SweepStart',...
 sma = AddState(sma,'Name','PreStim',...
     'Timer',S.PreStimPeriod,...
     'StateChangeConditions',{'Tup',CurrentStimType},...
-    'OutputActions',{'Wire1',1}); % Sweep onset TTL out of wire 1
+    'OutputActions',{'BNC1',1}); % Sweep onset TTL out of BNC #1. This can
+                                 % be used to trigger the camera.
 
 sma = AddState(sma,'Name','Piezo',...
     'Timer',S.StimWindow,...

@@ -1,11 +1,15 @@
-function PoleLocTraining
+function PoleLocation
 
-% Trains head-fixed mice to discriminate up to six pole locations through
-% whisking. The user is prompted to select one out of three training phases
-% before each session.
-% - Phase 1: water consumption upon pole presentations at a sigle location.
-% - Phase 2: two-location discrimination
-% - Phase 3: multiple location test
+% Trains head-fixed mice to discriminate pole locations through whisking. 
+% The user is prompted to select one of two phases before each session.
+% Before starting this training, mice should be pre-trained for water
+% consumption at the lickometer.
+%
+% - Phase 1 (string 't'): two-location discrimination training (usually
+%   5-10 daily sessions of ~50-60 min).
+%
+% - Phase 2 (string 'm'): multiple location test (can be made just once,
+%   during post-training neurophysiological recordings).
 %
 %
 %
@@ -18,8 +22,9 @@ function PoleLocTraining
 %   behavioral performance during the session, and saves trial outcomes.
 %
 % - Zaber X-MCB2 (USB port COM8): responds to inputs from both Bpod devices
-%   through triggers configured by a custom script in C#, named
-%   PoleLocTriggers.cs (also available in this repository).
+%   through triggers configured by either of two scripts in C#, named
+%   TwoLocationTriggers.cs and MultipleLocationTriggers.cs (also available
+%   in this repository).
 %
 %
 %
@@ -32,12 +37,14 @@ function PoleLocTraining
 %
 % - Pupil imaging camera (Flea3) and PCIe card: not described here
 %
+%
+%
 % TASK DESIGN (GO/NO-GO) __________________________________________________
 % - Whisker (pole) stimulation -> Response window -> inter-trial interval
 %
 % - Up to six types of stimuli: pole locations A, B, C, D, E, F. Phase 1
-%   training is restricted to location A only. Phase 2 presents extreme
-%   locations A and F for the binary discrimination training.
+%   training is restricted to extreme locations A and F for the binary
+%   discrimination training.
 %
 % - Locations A, B, C:    go trials
 %       - Trial outcomes: hit (lick) or miss (no lick)
@@ -50,25 +57,28 @@ function PoleLocTraining
 %       - Corr rejection: nothing happens (time out is avoided)
 %
 % - Locations vary at constant distances in the rostral-caudal direction,
-%   from A to F.
+%   from A to F. See TwoLocationTriggers.cs and MultipleLocationTriggers.cs
+%   for distances.
 %
 % - Locations B, C, D, E are intermediate, and hypothesized to yield
-%   psychometric fits once optimal behavioral performance is achieved.
+%   sigmoid psychometric fits.
 %
 % See the second section of this script ("Sets parameters") for stimulus
-% durations, inter-trial intervals, etc.
+% durations, trial and time out lengths, etc.
 %
 %
 %
 % USAGE ___________________________________________________________________
 % Step 1: Load the Zaber Console software, open the X-MCB2 device, and run
-% PoleLocTriggers.cs to set the triggers. Check if "completed" appears in
-% the Script Output area. Repeat if the device was restarted.
+% either TwoLocationTriggers.cs (phase 1) or MultipleLocationTriggers.cs
+% (phase 2) to set the triggers. Check if "completed" is displayed in the
+% Script Output area.
 %
-% Step 2: Enter "Bpod" in the Command Window, and wait until the Bpod
-% Console is ready. Then enter "PoleLocTraining", and respond to the
-% training phase prompt. Digital and analog events should be visible in the
-% Intan RHD interface, provided that cabling is set up correctly.
+% Step 2: Go back to Matlab, enter "Bpod" in the Command Window, and wait
+% until the Bpod Console is ready. Then enter "PoleLocation", and respond
+% to the prompt to select the phase. Digital and analog events should be
+% visible in the Intan RHD interface, provided that cabling is set up
+% correctly.
 %
 % LSBuenoJr and MXDing, with inputs from the Sanworks Support Forum _______
 
@@ -78,7 +88,7 @@ function PoleLocTraining
 global BpodSystem;
 basepath = cd;
 prompt   = ...
-    'Which phase: water consumption (w), two locations (t), or multiple locations (m)? ';
+    'Two locations (t), or Multiple locations (m)? ';
 prompt   = input(prompt,'s');
 
 %% Configures the Bpod Analog Output Module to trigger intermediate pole
@@ -145,8 +155,6 @@ BpodParameterGUI('init',S);clear ans
 
 %% Generates the sequence of trials depending on user input.
 switch prompt
-    case 'w'
-        TrialSeq = ones(1,1000);
     case 't' % Limits trial type repetition to three consecutive
         TrialSeq = [zeros(1,5) nan(1,995)]; % Pre-defines five initial trials
         for i    = 6:length(TrialSeq)
@@ -166,12 +174,11 @@ switch prompt
         end
         TrialSeq = TrialSeq+1;
     case 'm'
-        TrialSeq = [ones(1,5) nan(1,995)]; % Pre-defines five initial trials
+        TrialSeq = [ones(1,5) nan(1,995)];
         TrialTypes = 1:6;
         for i = 6:length(TrialSeq)
             PickTrialType = randi(length(TrialTypes));
             TrialSeq(i)   = TrialTypes(PickTrialType);
-            %TrialSeq = [ones(1,1000)];
         end
 end
 
@@ -314,14 +321,13 @@ for i = 1:length(TrialSeq)
         i,BpodSystem.Data.TrialSeq,Outcomes);
     
     % Displays trials on the command window and saves trials settings. For
-    % multiple location training, trials are identified from 1 to 6. For
-    % two-location training, trials are identified as either 1 or 2. The
-    % latter is better than identifying trials 1 or 6, as it results in a
+    % multiple pole locations, trials are identified from 1 to 6. For two
+    % pole locations, trials are identified as either 1 or 2. The latter is
+    % better than identifying trials 1 or 6, as it results in a
     % nicer-looking outcome plot, i.e., without an empty space between 2
     % and 5 along the Y axis. The "informal" nomenclature of Location A,
     % Location B, etc., is, however, kept consistent across training
-    % phases, as well as their corresponding output commands to Zaber and
-    % Intan.
+    % phases, as well as corresponding output commands to Zaber and Intan.
     switch prompt
         case 'm'
             if TrialSeq(i)     == 1
@@ -359,10 +365,6 @@ for i = 1:length(TrialSeq)
                 StimType{i}     = 'Location_F';
                 Action{i}       = 'FalseAlarm_F';
             end
-        case 'w'
-                str             = 'Go (Location A)';
-                StimType{i}     = 'Location_A';
-                Action{i}       = 'Hit_A';
     end
     
     disp(['Trial number: ',num2str(i),...
@@ -456,15 +458,6 @@ for i = 1:length(TrialSeq)
                     else
                     end
                 end
-            case 'w'
-                    if ~isnan(BpodSystem.Data.RawEvents.Trial{i}. ...
-                            States.Hit_A(1))
-                        Outcomes(i) = 1;  % Hit
-                    elseif ~isnan(BpodSystem.Data.RawEvents.Trial{i}. ...
-                            States.TimeOut(1))
-                        Outcomes(i) = -1; % Miss
-                    else
-                    end
         end
         BpodSystem.Data.TrialOutcomes(i) = Outcomes(i);
         BpodSystem.ProtocolSettings = S;
@@ -528,7 +521,8 @@ sma = AddState(sma,'Name','TrialStart',...
                                             % before the Global Timer to
                                             % deliver the trial onset cue
                                             % (light). This was supppressed
-                                            % in this monosensory task design).
+                                            % in this rather monosensory
+                                            % task design.
 
 sma = AddState(sma,'Name','PreStim',...
     'Timer',S.GUI.PreStimPeriod,...
