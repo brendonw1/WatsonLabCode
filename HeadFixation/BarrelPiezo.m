@@ -33,13 +33,16 @@ function BarrelPiezo
 % USAGE ___________________________________________________________________
 % Step 1: Connect the PF_GEVPlayer to the camera; in Device Control, set
 % imaging parameters (e.g., ROI, exposure, black level, gain), turn on the
-% Trigger Mode, and set Burst Trigger methods.
+% Trigger Mode, and set Burst Trigger methods (40 frames at 10 Hz,
+% alternating between piezo stimulation and inter-stimulus interval).
 %
 % Step 2: Still in the PF_GEVPlayer, set the folder to store frames
 % (Tools -> Save Images...).
 %
 % Step 3: Run Bpod then BarrelPiezo to start triggering both the camera and
 % the piezo stimuli.
+%
+% Step 4: Run BarrelAveraging for analysis.
 %
 % LSBuenoJr _______________________________________________________________
 
@@ -65,9 +68,10 @@ W.loadWaveform(1,MaxMinVolt*sin(Freq*2*pi/W.SamplingRate:...
 
 
 %% Sets Bpod parameters
-numSweeps        = 40;
-S.SweepLength    = 12;      % In seconds
+numSweeps        = 20;
+S.SweepLength    = 16;      % In seconds
 S.StimPeriod     = StimDur; % See section above
+S.RecoveryPeriod = 7;
 
 
 
@@ -107,11 +111,23 @@ sma = AddState(sma,'Name','SweepStart',...
 
 sma = AddState(sma,'Name','Piezo',...
     'Timer',S.StimPeriod,...
-    'StateChangeConditions',{'Tup','SweepEnd'},...
+    'StateChangeConditions',{'Tup','PreTriggerISI'},...
     'OutputActions',{'BNC2',1,'WavePlayer1',1}); % Triggers camera from
                                                  % BNC #2 of State Machine,
                                                  % and piezo from BNC #8 of
                                                  % the Analog Output Module
+
+sma = AddState(sma,'Name','PreTriggerISI',...
+    'Timer',S.RecoveryPeriod,...
+    'StateChangeConditions',{'Tup','ISItrigger'},...
+    'OutputActions',{});
+
+sma = AddState(sma,'Name','ISItrigger',...
+    'Timer',1,...
+    'StateChangeConditions',{'Tup','SweepEnd'},...
+    'OutputActions',{'BNC2',1});                 % Triggers camera from
+                                                 % BNC #2 of State Machine
+                                                 % (inter-stimulus frames)
 
 sma = AddState(sma,'Name','SweepEnd',...
     'Timer',10,...
