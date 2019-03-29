@@ -1,4 +1,4 @@
-function BarrelPiezo
+function BarrelPiezoCamera
 
 % Piezoelectric whisker stimulation under anesthesia for intrinsic imaging
 % of S1 barrels using high-power LED illumination, and skull transparency
@@ -25,7 +25,7 @@ function BarrelPiezo
 %
 % STIMULATION _____________________________________________________________
 % - Piezo waveform -> Inter-stimulus interval (ISI) -> Piezo waveform -> ...
-% - Piezo waveform: sinusoidal, 10 V amplitude (+/- 5 V), 20 Hz, 4 s
+% - Piezo waveform: sinusoidal, 10 V amplitude (+/- 5 V), 10 Hz, 4 s
 %   duration.
 %
 %
@@ -39,8 +39,8 @@ function BarrelPiezo
 % Step 2: Still in the PF_GEVPlayer, set the folder to store frames
 % (Tools -> Save Images...).
 %
-% Step 3: Run Bpod then BarrelPiezo to start triggering both the camera and
-% the piezo stimuli.
+% Step 3: Run Bpod then BarrelPiezoCamera to start triggering both the
+% camera and the piezo stimuli.
 %
 % Step 4: Run BarrelAveraging for analysis.
 %
