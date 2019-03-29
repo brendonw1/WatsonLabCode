@@ -107,6 +107,6 @@ binarized = reshape(binarized,size(delimited,1),size(delimited,2));
 
 
 %% Provides the outputs.
-discrt = validated(:,1);contin = binarized;
+discrt = validated(:,1);contin = int16(binarized);
 
 end
