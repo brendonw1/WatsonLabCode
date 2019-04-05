@@ -37,9 +37,9 @@ for a = 1:length(allfigs);
     if isempty(name);
         name = ['Figure',num2str(a)];
     end
-    if strcmp(filetype,'eps') | strcmp(filetype,'.eps')
-        epswrite(h,name)
-    else
+%     if strcmp(filetype,'eps') | strcmp(filetype,'.eps')
+%         epswrite(h,name)
+%     else
         saveas(h,name,filetype);
-    end
+%     end
 end
