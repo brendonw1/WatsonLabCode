@@ -41,8 +41,7 @@ for ii  = 1:length(rasterY)
         rasterY{ii}  = ii;
         rasterX{ii}  = NaN;
     else
-        rasterY{ii}  = repmat(ii,length(rawLicks{ii}),1);
-        rasterX{ii}  = rawLicks{ii}';
+        rasterY{ii}  = repmat(ii,1,length(rawLicks{ii}))';
     end
 end
 trialStamps          = [rasterY rasterX trialIDs];
