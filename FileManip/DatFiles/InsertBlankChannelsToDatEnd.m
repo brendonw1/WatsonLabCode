@@ -1,11 +1,13 @@
-numinitialchans = 11;
-chanstoaddtoend = 4;
+function InsertBlankChannelsToDatEnd(indatpath,outdatpath,numinitialchans,chanstoaddtoend)
+
+% numinitialchans = 11;
+% chanstoaddtoend = 4;
 
 bitspersamp = 16;
 bytespersamp = bitspersamp/8; % =2
 
-fidr = fopen('BWRat17_121712-01.dat','r');
-fidw = fopen('output.dat','w+');
+fidr = fopen(indatpath,'r');
+fidw = fopen(outdatpath,'w+');
 
 fseek(fidr,0,'eof');
 filebytes = ftell(fidr);%gives 8bit bytes
