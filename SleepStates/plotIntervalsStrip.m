@@ -16,7 +16,7 @@ end
 hold on
 
 yl = get(ax,'YLim');
-linewidth = abs(diff(yl))*0.15;
+linewidth = abs(diff(yl))*0.1;
 y = yl(2);
 ylim([yl(1) yl(2)+linewidth])
 
@@ -33,28 +33,29 @@ switch class(ints)
                         ti = ints.WakeInts;
                     elseif isfield(ints,'WAKEstate')
                         ti = ints.WAKEstate;
-                        ti = intervalSet(ti(:,1),ti(:,2));
+%                         ti = intervalSet(ti(:,1),ti(:,2));
                     end
                 case 2
                     if isfield(ints,'SWSPacketInts')
                         ti = ints.SWSPacketInts;
                     elseif isfield(ints,'NREMstate')
                         ti = ints.NREMstate;
-                        ti = intervalSet(ti(:,1),ti(:,2));
+%                         ti = intervalSet(ti(:,1),ti(:,2));
                     end
                 case 3
                     if isfield(ints,'REMEpisodeInts')
                         ti = ints.REMEpisodeInts;
-                    elseif isfield(ints,'REMepisode')
-                        ti = ints.REMepisode;
-                        ti = intervalSet(ti(:,1),ti(:,2));
+                    elseif isfield(ints,'REMstate')
+                        ti = ints.REMstate;
+%                         ti = intervalSet(ti(:,1),ti(:,2));
                     end
 
             end
-            for b = 1:length(length(ti));
-                thisint = scalingfactor*[StartEnd(subset(ti,b),'s')];
+            for b = 1:length(ti);
+                thisint = scalingfactor*ti(b,:);
                 patch([thisint(1) thisint(1) thisint(2) thisint(2)],[y y+linewidth y+linewidth  y],colorwheel(a,:),'edgecolor',colorwheel(a,:))
             end
+            clear ti
         end
     case {'cell', 'double'}
         if strcmp(class(ints),'double')

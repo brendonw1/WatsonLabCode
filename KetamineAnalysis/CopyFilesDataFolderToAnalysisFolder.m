@@ -1,0 +1,46 @@
+function CopyFilesDataFolderToAnalysisFolder(basepath)
+%assuming basepath incoming from KetamineSessionMatrix is for the /analysis folder
+
+abasepath = basepath;
+dbasepath = ['/data/BuzLabData' basepath(31:end)];
+
+% if ~exist(abasepath,'dir')
+%     mkdir(abasepath)
+% end
+
+basename = bz_BasenameFromBasepath(basepath);
+
+filenames = {'_RecordingSecondVectors.mat',...
+    '_BasicMetaData.mat',...
+    '.sessionInfo.mat',...
+    '_DatsMetadata.mat',...
+    '_InjectionComparisionIntervals.mat',...
+    '.spikes.cellinfo.mat',...
+    '.CellClass.cellinfo.mat',...
+    '.eegstates.mat',...
+    '.RawEEG.eegstates.mat',...
+    '.SleepState.states.mat',...
+    '.SleepStateEpisodes.states.mat',...
+    '.EMGFromLFP.LFP.mat',...
+    '.xml',...
+    '.lfp',...
+};
+    
+    
+for a = 1:length(filenames)
+    destpath = fullfile(abasepath,[basename filenames{a}]);
+    sourcepath = fullfile(dbasepath,[basename filenames{a}]);
+    if ~exist(sourcepath,'file')
+        disp(['Uh oh, ' sourcepath ' does not exist!'])
+    else
+        if ~exist(destpath,'file')
+            copyfile(sourcepath,destpath);
+            disp(['Copied ' sourcepath])
+        else
+            disp(['Already exists:' destpath])
+        end
+    end
+end
+
+        
+    

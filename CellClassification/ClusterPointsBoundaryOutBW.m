@@ -30,6 +30,9 @@ xb = get(gca,'XLim');
 yb = get(gca,'YLim');
 xb(1) = 0;
 yb(1) = 0;
+xb(2) = xb(2)+0.2*xb(2);
+yb(2) = yb(2)+0.2*yb(2);
+
 plot(xb,[m*xb(1)+b m*xb(2)+b])
 xlim(xb)
 ylim(yb)
@@ -42,7 +45,8 @@ h_lastline=[];
     zoomoff = 1;
     while 1
         [x y button]=PointInput(1);
-        res = button*zoomoff;      title('Discriminate pyr and int (select Pyramidal), right click to close polygon');
+        res = button*zoomoff;
+%         title('Discriminate pyr and int (select Pyramidal), right click to close polygon');
 
         switch res
             case 1 % left button
@@ -80,7 +84,7 @@ h_lastline=[];
                         case 1
                             zoom(1.5);
                         case 3
-                            zoom(0.5);      title('Discriminate pyr and int (select Pyramidal), right click to finish');
+%                             zoom(0.5);      title('Discriminate pyr and int (select Pyramidal), right click to finish');
 
                     end
                 end

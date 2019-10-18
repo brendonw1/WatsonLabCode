@@ -1,7 +1,7 @@
-filename = 'amplifier.dat';
-outfile = 'amplifier_cut.dat';
-mins = 11.2; %keep first (this many) minutes of file
-numchans = 64; 
+filename = 'LB_04_181206.dat';
+outfile = 'LB_04_181206_cut.dat';
+mins = 60; %keep first (this many) minutes of file
+numchans = 73; 
 
 samprate = 20000;
 filebitsperbyte = 16;

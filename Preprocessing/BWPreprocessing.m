@@ -104,8 +104,11 @@ end
 % end
 % filename = fullfile(basepath,[basename,'.sessionInfo.mat']);
 % save(filename,'sessionInfo'); 
-sessionInfo = bz_getSessionInfo(basepath,'editGUI',true);
-
+if ~exist(fullfile(basepath,[basename '.sessionInfo.mat']),'file')
+    sessionInfo = bz_getSessionInfo(basepath,'editGUI',true);
+else
+    sessionInfo = bz_getSessionInfo(basepath,'editGUI',false);
+end
 
 %% Handling dat 
 disp('Concatenating .dat files')
@@ -132,7 +135,14 @@ if ~exist(fullfile(basepath,[basename '.lfp']),'file')
 %widebandsampfreq = sessionInfo.rates.wideband;
 %desiredLfpFreq = 1250;%user choice, 1250 is buzsakilab convention
 %ResampleBinary(datname,lfpname,nchannels,widebandsampfreq,desiredLfpFreq);
-    bz_LFPfromDat(basepath)
+    if sessionInfo.rates.wideband < 2500
+        copyfile(fullfile(basepath,[basename '.dat']),fullfile(basepath,[basename '.lfp']))
+        sessionInfo.rates.lfp = sessionInfo.rates.wideband;
+        sessionInfo.lfpSampleRate = sessionInfo.rates.wideband;
+        save(fullfile(basepath,[basename '.sessionInfo.mat']),'sessionInfo');
+    else
+        bz_LFPfromDat(basepath)
+    end
 else
     disp('Not converting .lfp file, since it already exists')
 end
@@ -141,35 +151,38 @@ end
 disp('Starting Sleep Scoring')
 SleepScoreMaster(basepath,'noPrompts',noPrompts);
 
-%% Spike sorting
-try %figure out if gpu is present
-    gpuArray(1);
-    goodGPU = 1;
-catch
-    goodGPU = 0;
-end
+% %% Spike sorting
+% try %figure out if gpu is present
+%     gpuArray(1);
+%     goodGPU = 1;
+% catch
+%     goodGPU = 0;
+% end
+% 
+% if goodGPU
+%     try
+%         disp('Starting KiloSort')
+%         KiloSortWrapper('basepath',basepath);
+% 
+%         % To Klusters
+%         % Kilosort2Neurosuite(rez);
+%         % Save original clus if clu's prsent
+%         t = dir (fullfile(basepath,'*.clu.*'));
+%         if ~isempty(t)
+%             mkdir(fullfile(basepath,'OriginalClus'));
+%             for idx = 1:length(t)
+%                 copyfile(fullfile(basepath,t(idx).name),fullfile(basepath,'OriginalClus'));
+%             end
+%         end
+%     catch(e)
+%         rethrow(e)
+%     end
+% else
+%     disp('No GPU, not running kilosort')
+% end
 
-if goodGPU
-    try
-        disp('Starting KiloSort')
-        KiloSortWrapper('basepath',basepath);
 
-        % To Klusters
-        % Kilosort2Neurosuite(rez);
-        % Save original clus if clu's prsent
-        t = dir (fullfile(basepath,'*.clu.*'));
-        if ~isempty(t)
-            mkdir(fullfile(basepath,'OriginalClus'));
-            for idx = 1:length(t)
-                copyfile(fullfile(basepath,t(idx).name),fullfile(basepath,'OriginalClus'));
-            end
-        end
-    catch(e)
-        rethrow(e)
-    end
-else
-    disp('No GPU, not running kilosort')
-end
+
 
 % 
 % %% put all .dats in a subfolder called basename or to isis

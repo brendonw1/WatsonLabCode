@@ -1,4 +1,4 @@
-function temp(basepath)
+function ConvertEMGCorrrToEMGCoherenceOverShanks(basepath)
 
 basename = bz_BasenameFromBasepath(basepath);
 load(fullfile(basepath,[basename, '_EMGCorr.mat']))
@@ -8,6 +8,4 @@ EMGFromLFP.samplingFrequency = sf_EMG;
 EMGFromLFP.channels = nan;
 EMGFromLFP.detectorName = 'EMGCoherenceOverShanks';
 save(fullfile(basepath,[basename, '.EMGFromLFP.LFP.mat']))
-
-
 
