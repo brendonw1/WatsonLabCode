@@ -31,7 +31,7 @@ load(fullfile(basepath,[basename '_BasicMetaData.mat']),'BadIntervali')
 load(fullfile(basepath,[basename '_SSubtypes.mat']),'Se')
 load(fullfile(basepath,[basename '_SSubtypes.mat']),'Si')
 load(fullfile(basepath,[basename '_HighLowFRRatio.mat']))
-load(fullfile(basepath,[basename '_EMGCorr.mat']))
+load(fullfile(basepath,[basename '.EMGFromLFP.LFP.mat']))
 load(fullfile(basepath,[basename '_EIRatio.mat']))
 load(fullfile(basepath,[basename '_BurstPerBinData.mat']))
 load(fullfile(basepath,[basename '_SpikingCoeffVaration.mat']))
@@ -54,7 +54,7 @@ injt = InjectionComparisionIntervals.InjPlusHourStartRecordingSeconds;% Get Inje
 
 h = figure('position',[200 10 800 900]);
 subplot(7,1,1);
-    plot(EMGCorr(:,1),smooth(EMGCorr(:,2),100))
+    plot(EMGFromLFP.timestamps,smooth(EMGFromLFP.data,100))
     axis tight
     hold on;plot([injt injt],get(gca,'ylim'),'k')
     legend('EMG Based on Correlation')

@@ -1,4 +1,4 @@
-function FindInjectionComparisonIntervals(basepath,basename)
+function FindInjectionComparisonIntervals(basepath)
 % For injection-based recordings, find a series of time intervals of
 % interest, such as hour after injection, 24hours after, baseline prior
 % to, etc, save as intervals.  Many of these are in pairs, maybe shouldn't
@@ -6,17 +6,14 @@ function FindInjectionComparisonIntervals(basepath,basename)
 % Brendon Watson 2016
 
 if ~exist('basepath','var')
-    [~,basename] = fileparts(cd);
     basepath = cd;
 end
-if ~exist(basepath,'dir')
-    basepath = fullfile(getdropbox,'Data','KetamineDataset',basename);
-end
+basename = bz_BasenameFromBasepath(basepath);
 
 load(fullfile(basepath,[basename '_RecordingSecondVectors.mat']))
 load(fullfile(basepath,[basename '_BasicMetaData.mat']),'InjectionTimestamp')
 rs=RecordingSecondVectors.RecordingSeconds;
-rcs=RecordingSecondVectors.RecordingOn_ClockSeconds;
+rcs=RecordingSecondVectors.FromRecordingOn_ByClockSeconds;
 
 
 %% Baseline vs 24 hours later... start to injection
