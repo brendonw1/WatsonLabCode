@@ -149,7 +149,7 @@ end
 
 %% Sleep Scoring
 disp('Starting Sleep Scoring')
-SleepScoreMaster(basepath,'noPrompts',noPrompts);
+SleepScoreMaster(basepath,'noPrompts',noPrompts,'NotchUnder3Hz',true);
 
 % %% Spike sorting
 % try %figure out if gpu is present

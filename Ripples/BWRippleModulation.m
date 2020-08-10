@@ -1,4 +1,4 @@
-function temp(basepath)
+function BWRippleModulation(varargin)
 
 p = inputParser;
 addParameter(p,'basepath',pwd,@isstr);
@@ -8,12 +8,12 @@ addParameter(p,'wakeonly',false,@islogical);
 addParameter(p,'rippleregionname','HPC',@isstr);
 addParameter(p,'modulatedregionname','S1',@isstr);
 
-addParameter(p,'eventCategory','timestamps',@isstr);
-addParameter(p,'eventNumber',1,@isvector);
-addParameter(p,'secondsBefore',0.5,@isvector);
-addParameter(p,'secondsAfter',1,@isvector);
-addParameter(p,'binWidth',0.1,@isvector);
-addParameter(p,'plotting',0.1,@isvector);
+% addParameter(p,'eventCategory','timestamps',@isstr);
+% addParameter(p,'eventNumber',1,@isvector);
+% addParameter(p,'secondsBefore',0.5,@isvector);
+% addParameter(p,'secondsAfter',1,@isvector);
+% addParameter(p,'binWidth',0.1,@isvector);
+% addParameter(p,'plotting',0.1,@isvector);
 
 parse(p,varargin{:})
 
@@ -22,17 +22,16 @@ ripplechannel = p.Results.ripplechannel;
 noisechannel = p.Results.noisechannel;
 wakeonly = p.Results.wakeonly;
 rippleregionname = p.Results.rippleregionname;
-modulatedregionname = p.Results.wakeonly;
-wakeonly = p.Results.wakeonly;
+modulatedregionname = p.Results.modulatedregionname;
 
-
-eventCategory = p.Results.eventCategory;
-eventNumber = p.Results.eventNumber;
-secondsBefore = p.Results.secondsBefore;
-secondsAfter = p.Results.secondsAfter;
-binWidth = p.Results.binWidth;
-plotting = p.Results.plotting;
-saveMat = p.Results.saveMat;
+% 
+% eventCategory = p.Results.eventCategory;
+% eventNumber = p.Results.eventNumber;
+% secondsBefore = p.Results.secondsBefore;
+% secondsAfter = p.Results.secondsAfter;
+% binWidth = p.Results.binWidth;
+% plotting = p.Results.plotting;
+% saveMat = p.Results.saveMat;
 
 basename = bz_BasenameFromBasepath(basepath);
 
@@ -42,6 +41,17 @@ if ~exist('basepath','var')
 end
 basename = bz_BasenameFromBasepath(basepath);
 
+RipplesFilePath = fullfile(basepath,[basename '.ripples.events.mat']);
+if ~exist(RipplesFilePath,'file')
+    if wakeonly %if recording without sleep (pretty much)
+        ripples = bz_FindRipples(cd,ripplechannel,'saveMat',true,'noise',noisechannel,'thresholds',[2.5 4],'show','on');
+    else % if recording with wake and sleep
+        ripples = bz_FindRipples(cd,ripplechannel,'saveMat',true,'noise',noisechannel,'thresholds',[1.5 3],'show','on');   
+    end
+    EventExplorer(cd,'ripples')
+else
+    load(RipplesFilePath)
+end
 
 PETHSpikesFilePath = fullfile(basepath,[basename '.PETHSpikesTrigByripples_1s.mat']);
 if ~exist(PETHSpikesFilePath,'file')
