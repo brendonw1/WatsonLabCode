@@ -18,10 +18,10 @@ end
 noPrompts = logical(noPrompts);
 
 %% Optional: don't do it if already preprocessed... can comment this out
-% if exist(fullfile(basepath,[basename,'.SleepState.states.mat']),'file');
-%     disp([basename ' already done, skipping'])
-%     return
-% end
+if exist(fullfile(basepath,[basename,'.SleepState.states.mat']),'file');
+    disp([basename ' already done, skipping'])
+    return
+end
 
 %% Assuming one already did bz_SetAnimalMetadata
 % % if both the .mat and the Text.m files already exist in the basepath
