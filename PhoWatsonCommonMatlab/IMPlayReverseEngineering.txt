@@ -1,0 +1,7 @@
+
+>> which implay
+C:\Program Files\MATLAB\R2019b\toolbox\images\imuitools\implay.m
+
+// implay just wraps this IMPlayScopeCfg object.
+
+C:\Program Files\MATLAB\R2019b\toolbox\images\imuitools\+iptscopes\IMPlayScopeCfg.m

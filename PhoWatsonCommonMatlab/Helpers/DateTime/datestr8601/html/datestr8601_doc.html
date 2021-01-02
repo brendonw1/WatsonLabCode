@@ -1,0 +1,236 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>DATESTR8601 Examples</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="1999-01-03"><meta name="DC.source" content="datestr8601_doc.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>DATESTR8601 Examples</h1><!--introduction--><p>The function <a href="https://www.mathworks.com/matlabcentral/fileexchange/34095"><tt>DATESTR8601</tt></a> generates ISO 8601 formatted date strings (char vectors), specifying the date string format using a very compact token syntax.</p><p><b>In general <tt>DATESTR8601</tt> token syntax is not compatible with <tt>DATESTR</tt> or <tt>DATETIME</tt></b>. Note <tt>DATESTR8601</tt> does not parse or handle timezones.</p><p>This document shows examples of <tt>DATESTR8601</tt> usage. Most examples use the date+time given by the date vector <tt>[1999,1,3,15,6,48.0568]</tt>.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Basic Usage</a></li><li><a href="#2">Input 1: Date Number, Date String, Date Vector, or Datetime</a></li><li><a href="#3">Inputs 2:N: Timestamp Format Tokens</a></li><li><a href="#4">Inputs 2:N: Single Date/Time Tokens</a></li><li><a href="#5">Multiple Inputs -&gt; Separate Outputs</a></li><li><a href="#6">Multiple Inputs -&gt; Concatenated Output</a></li><li><a href="#7">Multiple Dates</a></li><li><a href="#8">Bonus: ISO 8601 Calendar and Weekday Functions</a></li><li><a href="#9">Bonus: DATENUM8601 Function</a></li></ul></div><h2>Basic Usage<a name="1"></a></h2><p>Calling <tt>DATESTR8601</tt> without any input arguments uses the current time and the default token <tt>'ymdHMS'</tt> (i.e. basic calendar date):</p><pre class="codeinput">datestr8601()
+</pre><pre class="codeoutput">ans =
+19990103T150648
+</pre><h2>Input 1: Date Number, Date String, Date Vector, or Datetime<a name="2"></a></h2><p>The first input can be a serial date number, a date string, a date vector, or a datetime scalar. An empty numeric uses the current time.</p><pre class="codeinput">datestr8601(now()-3)
+datestr8601([1999,1,3])
+datestr8601(datetime())
+datestr8601([])
+</pre><pre class="codeoutput">ans =
+19981231T150648
+ans =
+19990103T000000
+ans =
+19990103T150648
+ans =
+19990103T150648
+</pre><h2>Inputs 2:N: Timestamp Format Tokens<a name="3"></a></h2><p>Any further input arguments are tokens that define the ouput date format: the tokens for <tt>DATESTR8601</tt> are specifically designed to allow compact ISO 8601 timestamp definition (and are <b>NOT</b> the same as those of <tt>DATESTR</tt> or <tt>DATETIME</tt>). All of the date tokens follow one simple rule:</p><div><ul><li>lowercase = calendar year</li><li>UPPERCASE = week-numbering year</li></ul></div><p>Extended notation can be selected with an asterisk <tt>'*'</tt> token prefix.</p><p><b>See the Mfile help for the complete timestamp token specification.</b></p><pre class="codeinput">datestr8601([],<span class="string">'YWDHMS'</span>) <span class="comment">% week-numbering date, basic.</span>
+datestr8601([],<span class="string">'*ynHMS'</span>) <span class="comment">% ordinal date, extended.</span>
+datestr8601([],<span class="string">'ymdHMS'</span>) <span class="comment">% calendar date, basic.</span>
+datestr8601([],<span class="string">'ymd@H7'</span>) <span class="comment">% reduced precision, separator, decimal fraction.</span>
+</pre><pre class="codeoutput">ans =
+1998W537T150648
+ans =
+1999-003T15:06:48
+ans =
+19990103T150648
+ans =
+19990103@15.1133491
+</pre><h2>Inputs 2:N: Single Date/Time Tokens<a name="4"></a></h2><p>The input tokens can also specify single date/time values, a few examples of which are shown below. All of the date tokens follow one simple rule:</p><div><ul><li>lowercase = calendar year</li><li>UPPERCASE = week-numbering year</li></ul></div><p><b>See the Mfile help for the complete list of single-value tokens.</b></p><pre class="codeinput">datestr8601([],<span class="string">'yyyy'</span>) <span class="comment">% calendar year</span>
+datestr8601([],<span class="string">'YYYY'</span>) <span class="comment">% week-numbering year</span>
+datestr8601([],<span class="string">'n*'</span>)   <span class="comment">% day of the calendar year</span>
+datestr8601([],<span class="string">'N*'</span>)   <span class="comment">% day of the week-numbering year</span>
+datestr8601([],<span class="string">'DDDD'</span>) <span class="comment">% day of the week</span>
+datestr8601([],<span class="string">'XX'</span>)   <span class="comment">% weeks remaining in week-numbering year</span>
+</pre><pre class="codeoutput">ans =
+1999
+ans =
+1998
+ans =
+3rd
+ans =
+371st
+ans =
+Sunday
+ans =
+00
+</pre><h2>Multiple Inputs -&gt; Separate Outputs<a name="5"></a></h2><p>If multiple tokens are provided then each token defines one output string: this is much faster than calling <tt>DATESTR8601</tt> multiple times.</p><pre class="codeinput">[y,m,d] = datestr8601([],<span class="string">'yyyy'</span>,<span class="string">'mmmm'</span>,<span class="string">'d*'</span>)
+</pre><pre class="codeoutput">y =
+1999
+m =
+January
+d =
+3rd
+</pre><h2>Multiple Inputs -&gt; Concatenated Output<a name="6"></a></h2><p>If more tokens are provided than outputs, then the trailing "outputs" are concatentated together into one string (with a space between each string):</p><pre class="codeinput">[y,md] = datestr8601([],<span class="string">'yyyy'</span>,<span class="string">'mmmm'</span>,<span class="string">'d*'</span>)
+</pre><pre class="codeoutput">y =
+1999
+md =
+January 3rd
+</pre><h2>Multiple Dates<a name="7"></a></h2><p>By design <tt>DATESTR8601</tt> accepts only <b>one</b> input date. To parse multiple dates simply call <tt>DATESTR8601</tt> using the inbuilt <a href="https://www.mathworks.com/help/matlab/ref/arrayfun.html">ARRAYFUN</a> or <a href="https://www.mathworks.com/help/matlab/ref/cellfun.html">CELLFUN</a> as appropriate:</p><pre class="codeinput">arrayfun(@datestr8601,fix(now+(0:2)),<span class="string">'Uni'</span>,0)
+cellfun(@(v)datestr8601(v,<span class="string">'*YWD'</span>),{[2019,12,30],[2021,1,3]},<span class="string">'Uni'</span>,0) <span class="comment">% first &amp; last days of week-numbering year.</span>
+</pre><pre class="codeoutput">ans = 
+    '19990103T000000'    '19990104T000000'    '19990105T000000'
+ans = 
+    '2020-W01-1'    '2020-W53-7'
+</pre><h2>Bonus: ISO 8601 Calendar and Weekday Functions<a name="8"></a></h2><p>Included functions that support other ISO 8601 date functionalities, using ISO 8601 weekday order (with Monday as the first day of the week):</p><pre class="codeinput">calendar8601()
+[day,name] = weekday8601(now,<span class="string">'long'</span>)
+</pre><pre class="codeoutput">               January 1999
+   Mon   Tue   Wed   Thu   Fri   Sat   Sun
+     0     0     0     0     1     2     3*
+     4     5     6     7     8     9    10 
+    11    12    13    14    15    16    17 
+    18    19    20    21    22    23    24 
+    25    26    27    28    29    30    31 
+     0     0     0     0     0     0     0 
+day =
+     7
+name =
+Sunday
+</pre><h2>Bonus: DATENUM8601 Function<a name="9"></a></h2><p>The reverse conversion (from ISO 8601 timestamps to serial date numbers) is easy to achieve by simply downloading my function <a href="https://www.mathworks.com/matlabcentral/fileexchange/39389">DATENUM8601</a>:</p><pre class="codeinput">V(1) = datenum8601(<span class="string">'1999-01-03T15:06:48.0568'</span>); <span class="comment">% calendar</span>
+V(2) = datenum8601(  <span class="string">'1999-003T15:06:48.0568'</span>); <span class="comment">% ordinal</span>
+V(3) = datenum8601(<span class="string">'1998-W53-7T15:06:48.0568'</span>); <span class="comment">% week</span>
+datevec(V(:))
+</pre><pre class="codeoutput">ans =
+         1999            1            3           15            6       48.057
+         1999            1            3           15            6       48.057
+         1999            1            3           15            6       48.057
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% DATESTR8601 Examples
+% The function <https://www.mathworks.com/matlabcentral/fileexchange/34095
+% |DATESTR8601|> generates ISO 8601 formatted date strings (char vectors),
+% specifying the date string format using a very compact token syntax.
+%
+% *In general |DATESTR8601| token syntax is not compatible with |DATESTR|
+% or |DATETIME|*. Note |DATESTR8601| does not parse or handle timezones.
+%
+% This document shows examples of |DATESTR8601| usage. Most examples
+% use the date+time given by the date vector |[1999,1,3,15,6,48.0568]|.
+%% Basic Usage
+% Calling |DATESTR8601| without any input arguments uses the current
+% time and the default token |'ymdHMS'| (i.e. basic calendar date):
+datestr8601()
+%% Input 1: Date Number, Date String, Date Vector, or Datetime
+% The first input can be a serial date number, a date string, a date
+% vector, or a datetime scalar. An empty numeric uses the current time.
+datestr8601(now()-3)
+datestr8601([1999,1,3])
+datestr8601(datetime())
+datestr8601([])
+%% Inputs 2:N: Timestamp Format Tokens
+% Any further input arguments are tokens that define the ouput date format:
+% the tokens for |DATESTR8601| are specifically designed to allow compact
+% ISO 8601 timestamp definition (and are *NOT* the same as those of
+% |DATESTR| or |DATETIME|). All of the date tokens follow one simple rule:
+%
+% * lowercase = calendar year
+% * UPPERCASE = week-numbering year
+%
+% Extended notation can be selected with an asterisk |'*'| token prefix.
+%
+% *See the Mfile help for the complete timestamp token specification.*
+datestr8601([],'YWDHMS') % week-numbering date, basic.
+datestr8601([],'*ynHMS') % ordinal date, extended.
+datestr8601([],'ymdHMS') % calendar date, basic.
+datestr8601([],'ymd@H7') % reduced precision, separator, decimal fraction.
+%% Inputs 2:N: Single Date/Time Tokens
+% The input tokens can also specify single date/time values, a few examples
+% of which are shown below. All of the date tokens follow one simple rule:
+%
+% * lowercase = calendar year
+% * UPPERCASE = week-numbering year
+%
+% *See the Mfile help for the complete list of single-value tokens.*
+datestr8601([],'yyyy') % calendar year
+datestr8601([],'YYYY') % week-numbering year
+datestr8601([],'n*')   % day of the calendar year
+datestr8601([],'N*')   % day of the week-numbering year
+datestr8601([],'DDDD') % day of the week
+datestr8601([],'XX')   % weeks remaining in week-numbering year
+%% Multiple Inputs -> Separate Outputs
+% If multiple tokens are provided then each token defines one output
+% string: this is much faster than calling |DATESTR8601| multiple times.
+[y,m,d] = datestr8601([],'yyyy','mmmm','d*')
+%% Multiple Inputs -> Concatenated Output
+% If more tokens are provided than outputs, then the trailing "outputs" are
+% concatentated together into one string (with a space between each string):
+[y,md] = datestr8601([],'yyyy','mmmm','d*')
+%% Multiple Dates
+% By design |DATESTR8601| accepts only *one* input date. To parse multiple
+% dates simply call |DATESTR8601| using the inbuilt
+% <https://www.mathworks.com/help/matlab/ref/arrayfun.html ARRAYFUN> or
+% <https://www.mathworks.com/help/matlab/ref/cellfun.html CELLFUN> as appropriate:
+arrayfun(@datestr8601,fix(now+(0:2)),'Uni',0)
+cellfun(@(v)datestr8601(v,'*YWD'),{[2019,12,30],[2021,1,3]},'Uni',0) % first & last days of week-numbering year.
+%% Bonus: ISO 8601 Calendar and Weekday Functions
+% Included functions that support other ISO 8601 date functionalities,
+% using ISO 8601 weekday order (with Monday as the first day of the week):
+calendar8601()
+[day,name] = weekday8601(now,'long')
+%% Bonus: DATENUM8601 Function
+% The reverse conversion (from ISO 8601 timestamps to serial date
+% numbers) is easy to achieve by simply downloading my function
+% <https://www.mathworks.com/matlabcentral/fileexchange/39389 DATENUM8601>:
+V(1) = datenum8601('1999-01-03T15:06:48.0568'); % calendar
+V(2) = datenum8601(  '1999-003T15:06:48.0568'); % ordinal
+V(3) = datenum8601('1998-W53-7T15:06:48.0568'); % week
+datevec(V(:))
+##### SOURCE END #####
+--></body></html>
