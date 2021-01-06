@@ -65,7 +65,7 @@ end
 
 %% Import Lookup table for DIOs to food/water type
 try
-    dispenserLUT = GetGoogleSpreadsheet('1kSJgVS7loS6y1TLcr0y7l9IybzDgWw24hRPaCn2RNBM');
+    dispenserLUT = GetGoogleSpreadsheet_NoCookies('1kSJgVS7loS6y1TLcr0y7l9IybzDgWw24hRPaCn2RNBM');
 catch
     warning('Could not load LUT from webpage')
     load('/data/DigitalBox/DispenserLUTDec2020.mat')%works on my mac, can download and save

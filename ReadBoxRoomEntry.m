@@ -1,6 +1,6 @@
 function [ins,outs] = ReadBoxRoomEntry
 
-gsheet = GetGoogleSpreadsheet('1SJgjQWZsRLgB6dm0gV5IHnhHKLGrtwMdmQiC9CfbFmY');
+gsheet = GetGoogleSpreadsheet_NoCookies('1SJgjQWZsRLgB6dm0gV5IHnhHKLGrtwMdmQiC9CfbFmY');
 
 numblankrows = 2;
 counter = 1;
