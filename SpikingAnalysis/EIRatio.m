@@ -1,4 +1,4 @@
-function EIRatioData = EIRatio(basepath,binwidthsecs,smoothingnumpoints)
+function EIRatioData = EIRatio(basepath,binwidthsecs,smoothingnumpoints,filtered)
 % EI is pure ratio of E num spikes/ I num spikes per bin
 % ZEI is zscored version of that
 % PCEI is ratePerECell/ratePerICell (normalized by number of cells)
@@ -7,6 +7,11 @@ function EIRatioData = EIRatio(basepath,binwidthsecs,smoothingnumpoints)
 % er and ir are E and I rates within each bin for total population
 % numEcells, numIcells: self-explanatory
 
+%Modified: 02/07/2022 by David 
+%Added the 'filtered' argument. This toggles the extra functionality of
+%selecting specific units. If you wish not to use this, make filtered 0,
+%and this function will behave completely normally
+
 %% Constants
 if ~exist('binwidthsecs','var')
     binwidthsecs = 5;
@@ -14,6 +19,10 @@ end
 if ~exist('smoothingnumpoints','var')
     smoothingnumpoints = 1;
 end
+if ~exist('filtered','var')
+    filtered = 0;
+end
+
 sampfreq = 1;
 plotting = 1;
 savingfigs = 1;
@@ -61,6 +70,39 @@ numIcells = sum(CellClass.pI);
 % if binstartends(end) == binstartends(end-1)
 %     binstartends(end) = [];
 % end
+
+sieve = 1;
+if filtered
+    load('goodUnitsCurated.mat');
+    load('goodUnitsDaviolin.mat');
+    load([basename, '_InjectionComparisionIntervals.mat']);
+    [lol,hah,goodUnitsBoth] = UnitsCompare(goodUnits,goodUnitsDaviolin);
+    sieve = {goodUnits,goodUnitsDaviolin,goodUnitsBoth};
+    sievenames = {'Max Choices', 'David Choices', 'Collab Choices'};
+end            
+    
+    
+for s = 1:length(sieve)
+    if filtered
+    subsieve = sieve{s};
+    conservedSpikes = spikes;
+    conservedCellClass = CellClass;
+    for p = flip(1:length(spikes.UID))
+        if ~ismember(p,subsieve)
+           spikes.UID(p) = [];
+           spikes.times(p) = [];
+           spikes.cluID(p) = [];
+           spikes.rawWaveform(p) = [];
+           spikes.maxWaveformCh(p) = [];
+           CellClass.UID(p) = [];
+           CellClass.pE(p) = [];
+           CellClass.pI(p) = [];
+           CellClass.label(p) = [];
+        end
+    end
+    end
+%end
+
 [spikemat] = bz_SpktToSpkmat(spikes, 'binsize',binwidthsecs,'dt',binwidthsecs);
 bincenters = spikemat.timestamps;
 binstarts = bincenters-(binwidthsecs*0.5);
@@ -144,6 +186,11 @@ if plotting
         plot([yl(2)*.75 yl(2)*.75],'-.','color',[.5 .5 .5])
         axis tight
         ylabel('EIRatio')
+        if filtered
+            hold on;
+            xline(InjectionComparisionIntervals.BaselineEndRecordingSeconds,'-',{'KetInj'});     
+            xline(InjectionComparisionIntervals.BaselineP24StartRecordingSeconds, '-', {'BaseLStart'});
+        end
         title(['E/I Ratio. Binning:' num2str(binwidthsecs) 'sec. Smooth By: ' num2str(smoothingnumpoints)  'points. File:' basename '.'],'fontsize',8,'fontweight','normal')
     subplot(4,1,2)
         plot(bincenters,er,'b')
@@ -152,6 +199,11 @@ if plotting
         yl = ylim;
         plot([yl(2)*.75 yl(2)*.75],'-.','color',[.5 .5 .5])
         ylabel('E Rate(Hz)')
+        if filtered
+            hold on;
+            xline(InjectionComparisionIntervals.BaselineEndRecordingSeconds,'-',{'KetInj'});     
+            xline(InjectionComparisionIntervals.BaselineP24StartRecordingSeconds, '-', {'BaseLStart'});
+        end
     subplot(4,1,3)
         plot(bincenters,ir,'r')
         hold on
@@ -159,6 +211,11 @@ if plotting
         yl = ylim;
         plot([yl(2)*.75 yl(2)*.75],'-.','color',[.5 .5 .5])
         ylabel('I Rate(Hz)')
+        if filtered
+            hold on;
+            xline(InjectionComparisionIntervals.BaselineEndRecordingSeconds,'-',{'KetInj'});     
+            xline(InjectionComparisionIntervals.BaselineP24StartRecordingSeconds, '-', {'BaseLStart'});
+        end
     subplot(4,1,4)
         plot(bincenters,m,'color',[.4 .4 .4])
         hold on
@@ -166,9 +223,20 @@ if plotting
         yl = ylim;
         plot([yl(2)*.75 yl(2)*.75],'-.','color',[.5 .5 .5])
         ylabel('Motion')
+        if filtered
+            hold on;
+            xline(InjectionComparisionIntervals.BaselineEndRecordingSeconds,'-',{'KetInj'});     
+            xline(InjectionComparisionIntervals.BaselineP24StartRecordingSeconds, '-', {'BaseLStart'});
+            sgtitle(sievenames(s));
+            spikes = conservedSpikes;
+            CellClass = conservedCellClass;
+        end
 %% save figure
     if savingfigs
         savedir = fullfile(basepath,'Figures');
+        if filtered
+            h.Name = [h.Name sievenames{s}];
+        end
         MakeDirSaveFigsThereAs(savedir,h,'fig')
         MakeDirSaveFigsThereAs(savedir,h,'png')
     end
@@ -176,3 +244,5 @@ end
 
 EIRatioData = v2struct(EI,ZEI,PCEI,ZPCEI,er,ir,binwidthsecs,bincenters,smoothingnumpoints,numEcells,numIcells);
 save(fullfile(basepath,[basename '_EIRatio_Bin' num2str(binwidthsecs) 'Smooth' num2str(smoothingnumpoints) '.mat']),'EIRatioData')
+
+end
