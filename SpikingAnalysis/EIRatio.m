@@ -91,7 +91,7 @@ for s = 1:length(sieve)
         if ~ismember(p,subsieve)
            spikes.UID(p) = [];
            spikes.times(p) = [];
-           spikes.cluID(p) = [];
+           %spikes.cluID(p) = [];
            spikes.rawWaveform(p) = [];
            spikes.maxWaveformCh(p) = [];
            CellClass.UID(p) = [];
@@ -157,7 +157,7 @@ if plotting
 %     m(isnan(m))=0;
 %     m = smooth(m,smoothingnumpoints);
     if exist(fullfile(basepath,[basename '.EMGFromLFP.LFP.mat']))
-        load(fullfile(basepath,[basename '.EMGFromLFP.LFP.mat']))
+        load(fullfile(basepath,[basename '.EMGFromLFP.LFP.mat']),'EMGFromLFP')
         m = EMGFromLFP.data;
     elseif exist(fullfile(basepath,[basename '_EMGCorr.mat']))
         load(fullfile(basepath,[basename '_EMGCorr.mat']))
@@ -172,8 +172,9 @@ if plotting
 %     m = Data(m);
 %     m(isnan(m))=0;
 %     m = smooth(m,smoothingnumpoints);
-    m = ResampleTolerant(m,length(bincenters),length(m));
-
+    if ~isempty(spikes.UID)
+        m = ResampleTolerant(m,length(bincenters),length(m));
+    
 %     figname = [basename '_EIRatioBin' num2str(binwidthsecs) 'Smooth' num2str(smoothingnumpoints) 'Norm' normstring];
     figname = [basename '_EIRatioBin' num2str(binwidthsecs) 'Smooth' num2str(smoothingnumpoints)];
     h = figure('position',[100 100 600 600],'name',figname);
@@ -228,8 +229,6 @@ if plotting
             xline(InjectionComparisionIntervals.BaselineEndRecordingSeconds,'-',{'KetInj'});     
             xline(InjectionComparisionIntervals.BaselineP24StartRecordingSeconds, '-', {'BaseLStart'});
             sgtitle(sievenames(s));
-            spikes = conservedSpikes;
-            CellClass = conservedCellClass;
         end
 %% save figure
     if savingfigs
@@ -240,8 +239,10 @@ if plotting
         MakeDirSaveFigsThereAs(savedir,h,'fig')
         MakeDirSaveFigsThereAs(savedir,h,'png')
     end
+    end
 end
-
+spikes = conservedSpikes;
+CellClass = conservedCellClass;
 EIRatioData = v2struct(EI,ZEI,PCEI,ZPCEI,er,ir,binwidthsecs,bincenters,smoothingnumpoints,numEcells,numIcells);
 save(fullfile(basepath,[basename '_EIRatio_Bin' num2str(binwidthsecs) 'Smooth' num2str(smoothingnumpoints) '.mat']),'EIRatioData')
 
