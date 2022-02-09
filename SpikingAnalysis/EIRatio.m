@@ -241,8 +241,10 @@ if plotting
     end
     end
 end
-spikes = conservedSpikes;
-CellClass = conservedCellClass;
+if filtered
+    spikes = conservedSpikes;
+    CellClass = conservedCellClass;
+end
 EIRatioData = v2struct(EI,ZEI,PCEI,ZPCEI,er,ir,binwidthsecs,bincenters,smoothingnumpoints,numEcells,numIcells);
 save(fullfile(basepath,[basename '_EIRatio_Bin' num2str(binwidthsecs) 'Smooth' num2str(smoothingnumpoints) '.mat']),'EIRatioData')
 
