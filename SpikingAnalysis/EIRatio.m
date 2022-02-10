@@ -73,9 +73,9 @@ numIcells = sum(CellClass.pI);
 
 sieve = 1;
 if filtered
-    load('goodUnitsCurated.mat');
-    load('goodUnitsDaviolin.mat');
-    load([basename, '_InjectionComparisionIntervals.mat']);
+    load([basepath, '/goodUnitsCurated.mat']);
+    load([basepath, '/goodUnitsDaviolin.mat']);
+    load([basepath, '/', basename, '_InjectionComparisionIntervals.mat']);
     [lol,hah,goodUnitsBoth] = UnitsCompare(goodUnits,goodUnitsDaviolin);
     sieve = {goodUnits,goodUnitsDaviolin,goodUnitsBoth};
     sievenames = {'Max Choices', 'David Choices', 'Collab Choices'};
