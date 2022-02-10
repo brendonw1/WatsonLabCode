@@ -1,41 +1,41 @@
 function KetamineDataset_SpikeStabilityAndConvert(basepath)
-<<<<<<< HEAD
+% <<<<<<< HEAD
 % Opens data saved in klusters/neurosuite format, does Watson2016 stability
 % exlusion and then imports buzcode style
-=======
->>>>>>> master
+% =======
+% >>>>>>> master
 
-if ~exist('baspath','var')
+if ~exist('basepath','var')
     basepath = cd;
 end
-<<<<<<< HEAD
+% <<<<<<< HEAD
 basename = bz_BasenameFromBasepath(basepath);
 
 [S,shank,cellIx] = LoadSpikeData(basename);
 save([basename,'_SAll.mat'],'S','shank','cellIx')
-=======
-baseName = bz_BasenameFromBasepath(basepath);
+% =======
+% baseName = bz_BasenameFromBasepath(basepath);
 
-[S,shank,cellIx] = LoadSpikeData(baseName);
-save([baseName,'_SAll.mat'],'S','shank','cellIx')
->>>>>>> master
+[S,shank,cellIx] = LoadSpikeData(basename);
+save([basename,'_SAll.mat'],'S','shank','cellIx')
+% >>>>>>> master
 
 %load([basename,'_SAll.mat'])
 
 %% Load Bad Cells from manual basename_ClusteringNotes.csv (if exists)
-<<<<<<< HEAD
+% <<<<<<< HEAD
 manualbadcells = BadCellsFromClusteringNotes(basename,shank,cellIx);
 
 %% Look at cellular stability using Mahalanobis distances and total spike energies
 SpikingAnalysis_CellStabilityScript(basepath)
 % save([basename,'_SStable.mat'],'S','shank','cellIx','numgoodcells','badcells')
-=======
+% =======
 manualbadcells = BadCellsFromClusteringNotes(baseName,shank,cellIx);
 
 %% Look at cellular stability using Mahalanobis distances and total spike energies
 SpikingAnalysis_CellStabilityScript(basepath)
 save([basename,'_SStable.mat'],'S','shank','cellIx','numgoodcells','badcells')
->>>>>>> master
+% >>>>>>> master
 
 %% Convert to buzcode
 ConvertSStableToBuzcodeSpikes(basepath)

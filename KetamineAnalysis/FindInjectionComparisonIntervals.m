@@ -3,6 +3,7 @@ function FindInjectionComparisonIntervals(basepath)
 % interest, such as hour after injection, 24hours after, baseline prior
 % to, etc, save as intervals.  Many of these are in pairs, maybe shouldn't
 % have done that.
+% Uses _RecordingSecondVectors.mat made by 
 % Brendon Watson 2016
 
 if ~exist('basepath','var')
