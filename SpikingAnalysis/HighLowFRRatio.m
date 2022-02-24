@@ -1,4 +1,4 @@
-function HighLowFRRatioData = HighLowFRRatio(basepath,rankbasisstate,binwidthsecs,smoothingnumpoints,numgroups)
+function HighLowFRRatioData = HighLowFRRatio(basepath,rankbasisstate,binwidthsecs,smoothingnumpoints,numgroups,filtered)
 % Calculates ratio of highest firing rate group to lowest firing rate
 % group.  Groups are defined by 1/6ths by default.
 % Fix XXXXXXXXXXXXX
@@ -31,6 +31,9 @@ end
 if ~exist('numgroups','var')
     numgroups = 6;
 end
+if ~exist('filtered','var')
+    filtered = true;  %David, change this to false when not testing
+end
 sampfreq = 1;%for ts objects
 plotting = 1;
 savingfigs = 1;
@@ -43,6 +46,38 @@ ints = states.ints;
 
 numEcells = sum(CellClass.pE);
 numIcells = sum(CellClass.pI);
+
+sieve = 1;
+if filtered
+    load([basepath, '/goodUnitsCurated.mat']);
+    load([basepath, '/goodUnitsDaviolin.mat']);
+    load([basepath, '/', basename, '_InjectionComparisionIntervals.mat']);
+    [lol,hah,goodUnitsBoth] = UnitsCompare(goodUnits,goodUnitsDaviolin);
+    sieve = {goodUnits,goodUnitsDaviolin,goodUnitsBoth};
+    sievenames = {'Max Choices', 'David Choices', 'Collab Choices'};
+end       
+
+for s = 1:length(sieve)
+    if filtered
+    subsieve = sieve{s};
+    conservedSpikes = spikes;
+    conservedCellClass = CellClass;
+    rankbasis = 0;
+    for p = flip(1:length(spikes.UID))
+        if ~ismember(p,subsieve)
+           spikes.UID(p) = [];
+           spikes.times(p) = [];
+           spikes.rawWaveform(p) = [];
+           spikes.maxWaveformCh(p) = [];
+           CellClass.UID(p) = [];
+           CellClass.pE(p) = [];
+           CellClass.pI(p) = [];
+           CellClass.label(p) = [];
+        end
+    end
+    end
+%end
+
 
 switch rankbasisstate
     case 'all'
@@ -173,7 +208,7 @@ if plotting
 %     m(isnan(m))=0;
 %     m = smooth(m,smoothingnumpoints);
     if exist(fullfile(basepath,[basename '.EMGFromLFP.LFP.mat']))
-        load(fullfile(basepath,[basename '.EMGFromLFP.LFP.mat']))
+        load(fullfile(basepath,[basename '.EMGFromLFP.LFP.mat']),'EMGFromLFP')
         m = EMGFromLFP.data;
     elseif exist(fullfile(basepath,[basename '_EMGCorr.mat']))
         load(fullfile(basepath,[basename '_EMGCorr.mat']))
@@ -188,6 +223,7 @@ if plotting
 %     m = Data(m);
 %     m(isnan(m))=0;
 %     m = smooth(m,smoothingnumpoints);
+if ~isempty(spikes.UID)
     m = ResampleTolerant(m,length(bincenters),length(m));
 
     figname = [basename '_HighLowRatioBin' num2str(binwidthsecs) 'Smooth' num2str(smoothingnumpoints)];
@@ -217,14 +253,23 @@ if plotting
     if savingfigs
 %         savedir = fullfile(getdropbox,'BW OUTPUT','SleepProject','HighLowFRRatio',['Bin' num2str(binwidthsecs) 'Smooth' num2str(smoothingnumpoints)]);
         savedir = fullfile(basepath,'Figures');
+        if filtered
+            h.Name = [h.Name sievenames{s}];
+        end
         MakeDirSaveFigsThereAs(savedir,h,'fig')
         MakeDirSaveFigsThereAs(savedir,h,'png')
     end
+end
 end
 
 HighLowFRRatioData = v2struct(hrlr,zhrlr,hr,lr,binwidthsecs,bincenters,smoothingnumpoints,highidxs,lowidxs);
 save(fullfile(basepath,[basename '_HighLowFRRatio.mat']),'HighLowFRRatioData')
 
+if filtered
+    spikes = conservedSpikes;
+    CellClass = conservedCellClass;
+end
+end
 
 
 
