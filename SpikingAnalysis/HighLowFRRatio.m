@@ -32,7 +32,7 @@ if ~exist('numgroups','var')
     numgroups = 6;
 end
 if ~exist('filtered','var')
-    filtered = true;  %David, change this to false when not testing
+    filtered = false;  %David, change this to false when not testing
 end
 sampfreq = 1;%for ts objects
 plotting = 1;
@@ -53,8 +53,9 @@ if filtered
     load([basepath, '/goodUnitsDaviolin.mat']);
     load([basepath, '/', basename, '_InjectionComparisionIntervals.mat']);
     [lol,hah,goodUnitsBoth] = UnitsCompare(goodUnits,goodUnitsDaviolin);
-    sieve = {goodUnits,goodUnitsDaviolin,goodUnitsBoth};
-    sievenames = {'Max Choices', 'David Choices', 'Collab Choices'};
+    allUnits = 1:length(spikes.UID);
+    sieve = {allUnits,goodUnits,goodUnitsDaviolin,goodUnitsBoth};
+    sievenames = {'All Units','Max Choices', 'David Choices', 'Collab Choices'};
 end       
 
 for s = 1:length(sieve)
@@ -62,7 +63,7 @@ for s = 1:length(sieve)
     subsieve = sieve{s};
     conservedSpikes = spikes;
     conservedCellClass = CellClass;
-    rankbasis = 0;
+    rankbasis = 0; %when the hell did I add this?
     for p = flip(1:length(spikes.UID))
         if ~ismember(p,subsieve)
            spikes.UID(p) = [];
@@ -234,12 +235,22 @@ if ~isempty(spikes.UID)
         plot(bincenters,hr);
         plot(bincenters,lr);
         plotIntervalsStrip(gca,ints,1)
+         if filtered
+            hold on;
+            xline(InjectionComparisionIntervals.BaselineEndRecordingSeconds,'-',{'KetInj'});     
+            xline(InjectionComparisionIntervals.BaselineP24StartRecordingSeconds, '-', {'BaseLStart'});
+        end
         ylabel('HighFR, LowFR per cell')
         title(['High/Low Ratio. Binning:' num2str(binwidthsecs) 'sec. Smooth By: ' num2str(smoothingnumpoints)  'points. File:' basename '.'],'fontsize',8,'fontweight','normal')
     subplot(5,1,3:4,'yscale','log');
         hold on;
         axis tight
         plot(bincenters,hrlr,'k')
+         if filtered
+            hold on;
+            xline(InjectionComparisionIntervals.BaselineEndRecordingSeconds,'-',{'KetInj'});     
+            xline(InjectionComparisionIntervals.BaselineP24StartRecordingSeconds, '-', {'BaseLStart'});
+        end
         ylabel('HighFR/(HighFR+LowFR) Ratio')
         plotIntervalsStrip(gca,ints,1)
     subplot(5,1,5)
@@ -247,6 +258,11 @@ if ~isempty(spikes.UID)
         hold on
         axis tight
         yl = ylim;
+         if filtered
+            hold on;
+            xline(InjectionComparisionIntervals.BaselineEndRecordingSeconds,'-',{'KetInj'});     
+            xline(InjectionComparisionIntervals.BaselineP24StartRecordingSeconds, '-', {'BaseLStart'});
+        end
         plot([yl(2)*.75 yl(2)*.75],'-.','color',[.5 .5 .5])
         ylabel('EMG')
 %% save figure
