@@ -46,9 +46,11 @@ for s = 1:length(sieve)
         csv(1:length(spikes.times{1,j}),j) = array2table(spikes.times{1,j}); %transferring spike data into csv
     end
     
-    addAllFilecol(nicvar,csv,sizes);
+    csv = addAllFilecol(nicvar,csv,sizes);
+    disp(['writing table to ',basename,sievenames{s}]);
     writetable(csv, [basename,'_',sievenames{s},'.csv']);
-    spikes = conservedSpikes;
+    disp(['done motherfucker']);
+    
 
 
 
@@ -62,29 +64,36 @@ for s = 1:length(sieve)
         %to copy it over to newcsv.
 
         baselinespikes = timeframedivy(InjectionComparisionIntervals.BaselineStartRecordingSeconds,InjectionComparisionIntervals.BaselineEndRecordingSeconds,spikes);
-        
-        baselinecsv = array2table(NaN(max(sizes),length(spikes.times))); %creating NaN table that will be csv
+        for i = 1:length(baselinespikes)
+        baselinesizes(i) = length(baselinespikes{i});
+        end
+        baselinecsv = array2table(NaN(max(baselinesizes),length(spikes.times))); %creating NaN table that will be csv
 
         for j = 1:length(spikes.times)
-            baselinecsv(1:length(spikes.times{1,j}),j) = array2table(spikes.times{1,j}); %transferring spike data into csv
+            baselinecsv(1:length(baselinespikes{1,j}),j) = array2table(baselinespikes{1,j}); %transferring spike data into csv
         end
         
-        addAllFilecol(nicvar,baselinecsv,sizes);
+        baselinecsv = addAllFilecol(nicvar,baselinecsv,baselinesizes);
+        disp(['lol'])
         writetable(baselinecsv, [basename,'_',sievenames{s},'baseline','.csv']);
-
+        disp(['done with lol'])
 
 
         P24spikes = timeframedivy(InjectionComparisionIntervals.BaselineP24StartRecordingSeconds,InjectionComparisionIntervals.BaselineP24EndRecordingSeconds,spikes);
-        
-        P24csv = array2table(NaN(max(sizes),length(spikes.times))); %creating NaN table that will be csv
+        for i = 1:length(P24spikes)
+        P24sizes(i) = length(P24spikes{i});
+        end
+        P24csv = array2table(NaN(max(P24sizes),length(spikes.times))); %creating NaN table that will be csv
 
         for j = 1:length(spikes.times)
-            P24csv(1:length(spikes.times{1,j}),j) = array2table(spikes.times{1,j}); %transferring spike data into csv
+            P24csv(1:length(P24spikes{1,j}),j) = array2table(P24spikes{1,j}); %transferring spike data into csv
         end
 
-        addAllFilecol(nicvar,P24csv,sizes);
+        P24csv = addAllFilecol(nicvar,P24csv,P24sizes);
+        disp(['hah'])
         writetable(P24csv, [basename,'_',sievenames{s},'circadian','.csv']);
+        disp('hah done')
     end
 
-
+spikes = conservedSpikes;
 end
