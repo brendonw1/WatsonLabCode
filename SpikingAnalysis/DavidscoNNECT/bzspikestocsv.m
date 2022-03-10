@@ -48,7 +48,7 @@ for s = 1:length(sieve)
     
     addAllFilecol(nicvar,csv,sizes);
     writetable(csv, [basename,'_',sievenames{s},'.csv']);
-    spikes = conservedSpikes;
+    
 
 
 
@@ -85,6 +85,6 @@ for s = 1:length(sieve)
         addAllFilecol(nicvar,P24csv,sizes);
         writetable(P24csv, [basename,'_',sievenames{s},'circadian','.csv']);
     end
-
+spikes = conservedSpikes;
 
 end
