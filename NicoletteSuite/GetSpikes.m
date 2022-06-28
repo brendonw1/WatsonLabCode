@@ -1,7 +1,9 @@
 %%just run the script to load in the spikes and spit it out in the form of
 %%allspikecells
 
-rat = 'Professor X';
+if ~exist('rat','var')
+    rat = 'Professor X';
+end
 
 if ~exist('allspikecells','var')
     cd(['Z:/Dayvihd/',rat,'/Spikes']) %This only has the spikes in it

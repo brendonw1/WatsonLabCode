@@ -7,6 +7,8 @@ if ~exist('LFParray','var')
     LFPtable = readtable([rat,' FP03.csv']);
     LFParray = table2array(LFPtable); 
 end
+%% Note: if using buzcode format, use:
+% bz_GetLFP('all'); LFParray = double(ans.data);
 
 %Keep in mind that allspikecells is identical to spikes.times in bz format
 if ~exist('allspikecells','var') 
@@ -75,6 +77,37 @@ plotSleepSpkandLFP(allspikecells,ParentSleepSpkandLFPDNR,filteredCohND,Sleepstat
 % [ParentSleepSpkandLFPWMG, filteredCohWMG] = MakeParentSleepSpkandLFP(allspikecells,LFParrayWMG,ints.WAKEstate,Sleepstate,Band,samp);
 % plotSleepSpkandLFP(allspikecells,ParentSleepSpkandLFPWMG,filteredCohWMG,Sleepstate,Band,hypnogram,rat)
 
+function plotSingleDat(hypno,ratname,ParentDNR,ParentTHR,ParentTHW)
+    %Use plotSingleDat(hypnogram,rat,ParentSleepSpkandLFPDNR,ParentSleepSpkandLFPTHR,ParentSleepSpkandLFPTHW)
+    fDNR = makefilteredCoh(ParentDNR);
+    fTHR = makefilteredCoh(ParentTHR);
+    fTHW = makefilteredCoh(ParentTHW);
+    goodorbad1 = nanChecker(ParentDNR);
+    goodorbad2 = nanChecker(ParentTHR);
+    goodorbad3 = nanChecker(ParentTHW);
+    
+    goodorbad = goodorbad1 .* goodorbad2 .* goodorbad3;
+    for i = 1:length(goodorbad)
+        if goodorbad(i)
+            figure;
+            subplot(2,1,1);
+            plot(cell2mat(ParentDNR{1,i}(:,7)),fDNR{i},'LineWidth',2);
+            axis tight;
+            ylim([0 1]);
+            hold on;
+            plot(cell2mat(ParentTHR{1,i}(:,7)),fTHR{i},'LineWidth',2);
+            plot(cell2mat(ParentTHW{1,i}(:,7)),fTHW{i},'LineWidth',2);
+            hold off;
+            legend('DeltaNREM','ThetaREM','ThetaWAKE')
+            subplot(2,1,2);
+            imagesc(hypno);
+            colorMap = [255/256 255/256 0; 102/256 178/256 255/256; 255/256 102/256 178/256];
+            colormap(colorMap);
+            sgtitle([ratname ' Filtered Coherence Val for Unit ' num2str(i)]);
+        end
+    end
+    
+end
 
 function [ints] = makeints(ratname)
     cd(['/analysis/Dayvihd/',ratname]);
@@ -121,7 +154,7 @@ function plotSleepSpkandLFP(allspikecells,ParentSleepSpkandLFP,filteredCoh,Sleep
         plot(cell2mat(ParentSleepSpkandLFP{1,i}(:,7))/60/60,smooth(filteredCoh{i}),'LineWidth',2);
         hold off
         %title(['Spike Train ' num2str(i)]);
-        ylabel(['Coherence Val Unit ' num2str(1)]);
+        ylabel(['Coherence Val Unit ' num2str(i)]);
         axis tight;
         ylim([0 1]);
         end
@@ -131,7 +164,7 @@ function plotSleepSpkandLFP(allspikecells,ParentSleepSpkandLFP,filteredCoh,Sleep
     colorMap = [255/256 255/256 0; 102/256 178/256 255/256; 255/256 102/256 178/256];
     colormap(colorMap);
     xlabel('Time (Hr)');
-    sgtitle([rat, 'Spike Coherence over Time for ',Band,' during ',Sleepstate])
+    sgtitle([rat, ' Spike Coherence over Time for ',Band,' during ',Sleepstate])
     savefig([rat,Sleepstate,Band,'SpkFPCoh.fig']);
    % savefig([rat,Sleepstate,Band,'SpkFPCoh.png']);
 end
@@ -153,8 +186,20 @@ function [goodorbad] = nanChecker(ParentSleepSpkandLFP)
     for i = 1:length(ParentSleepSpkandLFP)
         temp = cell2mat(ParentSleepSpkandLFP{1,i}(:,5));
         nonnan = temp(~isnan(temp));
-        if length(nonnan) / length(temp) > .95
+        if length(nonnan) / length(temp) > .9
             goodorbad(i) = 1;
+        end
+    end
+end
+
+function [filteredCoh] = makefilteredCoh(ParentSleepSpkandLFP)
+    filteredCoh = {};
+    goodorbad = nanChecker(ParentSleepSpkandLFP);
+    for i = 1:length(ParentSleepSpkandLFP)
+        if goodorbad(i)
+            filteredCoh{i} = movmean(cell2mat({ParentSleepSpkandLFP{1,i}{:,5}}),8);
+        else
+            filteredCoh{i} = [];
         end
     end
 end
