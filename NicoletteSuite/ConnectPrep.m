@@ -1,7 +1,20 @@
-%% Loading in the spike trains and making allspikecells
-rat = 'c3po_160302';
-saveloc = ['/analysis/Dayvihd/' rat '/ConnectTxts/Whole Recording'];
+%% Welcome to CoNNECT Prep! I wanted to name it Preparation C like the hemorrhoid cream,
+% But I deemed that a little inappropriate... Anyways, things to change are
+% the two lines in the beginning "rat" and "saveloc". Make sure that the
+% rat name is correctly spelled, and make sure that the saveloc exists!
+% Next, be sure to edit the binsize in the next block of code (somewhere around 
+% line 30-35 or so...) make sure that you do this in SECONDS! Anyways, good
+% luck my friends and fellow scientists!
 
+%% Loading in the spike trains and making allspikecells
+rat = 'Quiksilver';
+saveloc = ['/analysis/Dayvihd/' rat '/ConnectTxts/WholeRec'];
+
+% Remember that below is for Nicolette style data where all spike trains
+% are stored in their individual csv files. If using buzcode format, simply
+% use allspikecells = spikes.times before running this script, and it'll
+% run like a DREAM, my friend... A DREAM (Hopefully... Technically
+% nightmares are dreams, yeah? So no promises)
 if ~exist('allspikecells','var') 
     cd(['/analysis/Dayvihd/',rat,'/Spikes']) %This only has the spikes in it
     directory = dir('*.csv');
@@ -44,8 +57,8 @@ function savebins(binsize,allspikecells,rat,saveloc)
     bins = round(findmax(allspikecells) / binsize);
     for i = 1:bins
         guy = ntimeframedivy((i-1)*binsize,i*binsize,allspikecells);
-        makeCCG(guy);
-        saveConnect(allspikecells,i*binsize,rat,saveloc)
+        %%makeCCG(guy);
+        saveConnect(guy,i*binsize,rat,saveloc)
     end
 end
 

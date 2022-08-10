@@ -1,10 +1,10 @@
-rat = 'Wolverine';
+rat = 'Quiksilver';
 
 
 %% Just need LFParray from LFPRead in Documents and some spikes by using this right here:
 if ~exist('LFParray','var')
     cd(['/analysis/Dayvihd/',rat,'/Field Potentials']) 
-    LFPtable = readtable([rat,' FP03.csv']);
+    LFPtable = readtable([rat,' FP19.csv']);
     LFParray = table2array(LFPtable); 
 end
 %% Note: if using buzcode format, use:

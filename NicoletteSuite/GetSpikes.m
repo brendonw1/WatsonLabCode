@@ -5,8 +5,9 @@ if ~exist('rat','var')
     rat = 'Professor X';
 end
 
+try
 if ~exist('allspikecells','var')
-    cd(['Z:/Dayvihd/',rat,'/Spikes']) %This only has the spikes in it
+    cd(['/analysis/Dayvihd/',rat,'/Spikes']) %This only has the spikes in it
     directory = dir('*.csv');
     allspikecells = {};
     for i = 1:length(directory)
@@ -14,6 +15,10 @@ if ~exist('allspikecells','var')
     end
 
     for i=1:length(allspikecells)
-        allspikecells{i} = table2array(allspikecells{i})';
+        allspikecells{i} = table2array(allspikecells{i});
     end
+end
+catch
+   disp('You might have chosen a rat name that does not exist... Look under analysis/Dayvihd to see if it is there')
+   disp('change line 10 here to fix the directory')
 end
