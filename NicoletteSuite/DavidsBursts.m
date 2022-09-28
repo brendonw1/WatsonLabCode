@@ -32,11 +32,19 @@ boxy = cell2mat(lmao)';
 figure;
 boxplot(boxy);
 
-%lol =
-%SimpleSum(table2array(selectedbursts{1,1}{1,1}),table2array(times{1,1}{1,1}));
-%works
-%GaussBursts([5 6 10 10.3],1); % works
-%OneMouseGauss(times{1},1);
+
+function writexlsx(holders,selectedbursts)
+    guy = {'210','413','Bane','Beast','Cyclops','Moriarty','ProfessorX','Quiksilver','Wolverine'};
+    for i = 1:length(guy)
+        tabtab = array2table(holders{i});
+        guynames = {};
+        for j = 1:length(selectedbursts{1,i})
+            guynames{j} = cell2mat(selectedbursts{1,i}{1,j}.Properties.VariableNames);
+        end
+        tabtab.Properties.VariableNames = guynames;
+        writetable(tabtab,['fack.xlsx'],'Sheet',guy{i});
+    end
+end
 
 
 function [singlemouseburst, holdercell] = MouseSum(selectedbursts,times)

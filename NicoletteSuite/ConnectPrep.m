@@ -8,7 +8,7 @@
 
 %% Loading in the spike trains and making allspikecells
 rat = 'Quiksilver';
-saveloc = ['/analysis/Dayvihd/' rat '/ConnectTxts/WholeRec'];
+saveloc = ['/analysis/Dayvihd/' rat '/ConnectTxts/4hrbin'];
 
 % Remember that below is for Nicolette style data where all spike trains
 % are stored in their individual csv files. If using buzcode format, simply
@@ -32,8 +32,14 @@ if ~exist('allspikecells','var')
 end
 
 %% I am going to divy up the spike trains and save them one by one
-binsize = 3600*24; %bin size in seconds
+binsize = 3600*1; %bin size in seconds
 savebins(binsize, allspikecells,rat,saveloc)
+
+
+
+
+
+
 
 function makeCCG(guy)
     ccg = CCG(guy,[],'binSize',.001,'duration',.1);
