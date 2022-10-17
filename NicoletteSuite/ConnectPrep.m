@@ -7,8 +7,10 @@
 % luck my friends and fellow scientists!
 
 %% Loading in the spike trains and making allspikecells
+if ~exist('rat','var')
 rat = 'Quiksilver';
-saveloc = ['/analysis/Dayvihd/' rat '/ConnectTxts/4hrbin'];
+end
+saveloc = ['/analysis/Dayvihd/' rat '/ConnectTxts/3hrbin'];
 
 % Remember that below is for Nicolette style data where all spike trains
 % are stored in their individual csv files. If using buzcode format, simply
@@ -32,7 +34,7 @@ if ~exist('allspikecells','var')
 end
 
 %% I am going to divy up the spike trains and save them one by one
-binsize = 3600*1; %bin size in seconds
+binsize = 3600*3; %bin size in seconds
 savebins(binsize, allspikecells,rat,saveloc)
 
 

@@ -10,7 +10,7 @@ allbursttab = readBurstCsvs(burstdir);
 % data in is in the form of a csv with a lot of column headers... In this
 % next step, you should change which variable you want to choose to analyze
 % by changing the 'type' variable
-type = 'SpikesInBurst'; % Things to choose from: Start,End,Duration,SpikesInBurst,ISIinBurst, and FreqInBurst
+type = 'ISIinBurst'; % Things to choose from: Start,End,Duration,SpikesInBurst,ISIinBurst, and FreqInBurst
 selectedbursts = selectCol(type, allbursttab);
 times = selectCol('Start', allbursttab);
 ends = selectCol('End', allbursttab);
@@ -32,8 +32,9 @@ boxy = cell2mat(lmao)';
 figure;
 boxplot(boxy);
 
+writexlsx(holders,selectedbursts,type)
 
-function writexlsx(holders,selectedbursts)
+function writexlsx(holders,selectedbursts,type)
     guy = {'210','413','Bane','Beast','Cyclops','Moriarty','ProfessorX','Quiksilver','Wolverine'};
     for i = 1:length(guy)
         tabtab = array2table(holders{i});
@@ -42,7 +43,7 @@ function writexlsx(holders,selectedbursts)
             guynames{j} = cell2mat(selectedbursts{1,i}{1,j}.Properties.VariableNames);
         end
         tabtab.Properties.VariableNames = guynames;
-        writetable(tabtab,['fack.xlsx'],'Sheet',guy{i});
+        writetable(tabtab,[type,'fack.xlsx'],'Sheet',guy{i});
     end
 end
 
@@ -65,7 +66,7 @@ function [singlecolsums] = SimpleSum(selectedbursts,times)
     % I just gotta get this done. No time to explain
     singlecolsums = [];
     for hour = 1:24
-        singlecolsums(hour,1) = sum(  selectedbursts(times > ((hour - 1)*3600) & times <= (hour*3600)  ));
+        singlecolsums(hour,1) = median(  selectedbursts(times > ((hour - 1)*3600) & times <= (hour*3600)  )); % mean, sum, median can all be replaced
     end
 end
 

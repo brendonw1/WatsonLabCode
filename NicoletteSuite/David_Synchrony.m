@@ -35,7 +35,7 @@ FiringRateCurve;
 % Let's first create a binsize :)
 binsize = 1;
 if ~exist('spikemat','var')
-    spikemat = dv_SpktToSpkmat(allspikecells, binsize);
+%     spikemat = dv_SpktToSpkmat(allspikecells, binsize);
 end
 
 %% So this next part might be a little hodgepodgy/confusing
@@ -48,22 +48,11 @@ for i = 1:size(spikemat,1)
     indperhour = 3600/binsize;
     for j = 1:length(spikemat(i,:))
         try
-            
-            spikesinhour = sum(spikemat(i,(floor(j/(indperhour+.00001))*indperhour +1):(ceil(j/indperhour)*indperhour) ));
-            if ~hasbeendisp
-                disp(num2str(spikesinhour));
-                hasbeendisp = 1;
-            end
-            if curtrage(end) ~= spikesinhour && length(curtrage) > 1
-            hasbeendisp = 0;
-            end
-            curtrage(j) = spikesinhour; 
-            newspikemat(j) = spikemat(i,j) / spikesinhour;
-            
+            spikesinhour = sum(spikemat(i,(floor(j/(indperhour+.00001))*indperhour +1):(ceil(j/indperhour)*indperhour) ));           
         catch
             assert(ceil(j/indperhour)*indperhour > length(spikemat(i,:)));
-           
             spikesinhour = sum(spikemat(i,(floor(j/(indperhour+.00001))*indperhour +1):end ));
+        end
             if ~hasbeendisp
                 disp(num2str(spikesinhour));
                 hasbeendisp = 1;
@@ -73,8 +62,6 @@ for i = 1:size(spikemat,1)
             end
             curtrage(j) = spikesinhour;
             newspikemat(j) = spikemat(i,j) / spikesinhour;
-                    
-        end
     end
     
     disp(' ');
@@ -99,25 +86,42 @@ for i = 1:reclength
 end
 delete(f);
 
+
+%% SMALL PATCH
+cd('/analysis/Dayvihd/Synchrony/HrlyNormedSynchrony')
+lol = load([rat 'RawCurve.mat']);
+THEcurve = lol.THEcurve;
 %% Finally, for this method, let's plot the results compared to the FR :)
+
 yay=figure;
-subplot(2,1,1)
+if ~exist('ints','var')
+    ints = makeints(rat);
+end
+hypno = MakeHypno(ints);
+subplot(3,1,1)
 %plot(movmean(THEcurve,ceil(600/binsize)));
 plot(movmean(THEcurve,600));
 axis tight;
 ylabel('Synchrony');
-subplot(2,1,2)
+
+subplot(3,1,2)
+imagesc(hypno);
+colorMap = [255/256 255/256 0; 102/256 178/256 255/256; 255/256 102/256 178/256];
+colormap(colorMap);
+ylabel('Hypnogram')
+
+subplot(3,1,3)
 plot(movmean(overallfr,60));
 axis tight;
 ylabel('Firing Rate');
 sgtitle(['Synchrony vs Firing Rate over Time for ',rat])
 
-cd('/analysis/Dayvihd/Synchrony/HrlyNormedSynchrony/Nice Figures')
+cd('/analysis/Dayvihd/Synchrony/HrlyNormedSynchrony/AlsoNiceFigures')
 savefig(yay, [rat, '.fig'])
 saveas(yay,[rat,'.png'])
 
-cd('/analysis/Dayvihd/Synchrony/HrlyNormedSynchrony')
-save([rat, 'RawCurve.mat'],'THEcurve')
+% cd('/analysis/Dayvihd/Synchrony/HrlyNormedSynchrony')
+% save([rat, 'RawCurve.mat'],'THEcurve')
 
 %% I decided midway through that we're gonna do some sleep state analysis!
 % So let's access a variable called 'ints'. This basically hold all the
