@@ -16,28 +16,37 @@ if ~exist('basepath','var')
     [~,basename,~] = fileparts(cd);
     basepath = cd;
 end
-load(fullfile(basepath,[basename '_SSubtypes.mat']))
-numEcells = length(Se);
-numIcells = length(Si);
+% load(fullfile(basepath,[basename '_SSubtypes.mat']))
+% numEcells = length(Se);
+% numIcells = length(Si);
+CellClass = bz_LoadCellinfo(basepath,'CellClass'); % Grab the new stuff that replaces SSubtypes
+
+numEcells = sum(CellClass.pE);
+numIcells = sum(CellClass.pI); 
 
 % if numIcells<3
 %     return
 % end
 
 %% Generate bins
-if numIcells>0
-    maxbin = min([max(TimePoints(oneSeries(Se),'s')) max(TimePoints(oneSeries(Si),'s'))]);%because of Inf as max of some Good Sleeps
-else
-    maxbin = min([max(TimePoints(oneSeries(Se),'s'))]);%because of Inf as max of some Good Sleeps
-end
-binstartends = 0:binwidthsecs:maxbin;
-binstartends(end+1) = binstartends(end)+binwidthsecs;
-if binstartends(end) == binstartends(end-1)
-    binstartends(end) = [];
-end
-binstartends = binstartends * sampfreq;
-binInts = intervalSet(binstartends(1:end-1),binstartends(2:end));
-bincentertimes = mean([binstartends(1:end-1)' binstartends(2:end)'],2)/sampfreq;
+% if numIcells>0
+%     maxbin = min([max(TimePoints(oneSeries(Se),'s')) max(TimePoints(oneSeries(Si),'s'))]);%because of Inf as max of some Good Sleeps
+% else
+%     maxbin = min([max(TimePoints(oneSeries(Se),'s'))]);%because of Inf as max of some Good Sleeps
+% end
+% binstartends = 0:binwidthsecs:maxbin;
+% binstartends(end+1) = binstartends(end)+binwidthsecs;
+% if binstartends(end) == binstartends(end-1)
+%     binstartends(end) = [];
+% end
+% binstartends = binstartends * sampfreq;
+% binInts = intervalSet(binstartends(1:end-1),binstartends(2:end));
+% bincentertimes = mean([binstartends(1:end-1)' binstartends(2:end)'],2)/sampfreq;
+
+spikes = bz_GetSpikes('basepath',basepath);
+spikemat = bz_SpktToSpkmat(spikes);
+% Also check out dv_SpktToSpkmat in NicoletteSuite folder in
+% WatsonLabCode!!
 
 %% Bin and Divide to get EIRatio (non-normalized)
 EBinRates = Data(MakeQfromS(Se,binInts))/binwidthsecs;
