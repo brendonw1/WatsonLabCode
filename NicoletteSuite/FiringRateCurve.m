@@ -7,7 +7,9 @@ if ~exist('rat','var')
 end
 
 % First let's load in these spikes, yeah?
-DavidGetSpikes;
+if ~exist('allspikecells','var')
+    DavidGetSpikes;
+end
 
 % Now let's choose the size of the bin! In seconds!
 bin = 10; 

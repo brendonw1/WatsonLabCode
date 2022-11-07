@@ -27,15 +27,28 @@
 if ~exist('rat','var')
     rat  = 'Cyclops';
 end
-DavidGetSpikes;
-FiringRateCurve;
 
+if ~exist('buzformat','var')
+    buzformat = false;
+end
+
+if buzformat == false
+    DavidGetSpikes;
+else
+    basepath = cd;
+    spikes = bz_GetSpikes('basepath',basepath);
+    allspikecells = spikes.times;
+    states = bz_LoadStates(basepath,'SleepState');
+    ints = states.ints;    
+end
+
+FiringRateCurve;
 
 %% Now let's create a simple spikemat!
 % Let's first create a binsize :)
-binsize = 1;
+binsize = 5;
 if ~exist('spikemat','var')
-%     spikemat = dv_SpktToSpkmat(allspikecells, binsize);
+     spikemat = dv_SpktToSpkmat(allspikecells, binsize);
 end
 
 %% So this next part might be a little hodgepodgy/confusing
@@ -88,9 +101,9 @@ delete(f);
 
 
 %% SMALL PATCH
-cd('/analysis/Dayvihd/Synchrony/HrlyNormedSynchrony')
-lol = load([rat 'RawCurve.mat']);
-THEcurve = lol.THEcurve;
+% cd('/analysis/Dayvihd/Synchrony/HrlyNormedSynchrony')
+% lol = load([rat 'RawCurve.mat']);
+% THEcurve = lol.THEcurve;
 %% Finally, for this method, let's plot the results compared to the FR :)
 
 yay=figure;
@@ -100,7 +113,7 @@ end
 hypno = MakeHypno(ints);
 subplot(3,1,1)
 %plot(movmean(THEcurve,ceil(600/binsize)));
-plot(movmean(THEcurve,600));
+plot(movmean(THEcurve,60));
 axis tight;
 ylabel('Synchrony');
 
@@ -116,7 +129,11 @@ axis tight;
 ylabel('Firing Rate');
 sgtitle(['Synchrony vs Firing Rate over Time for ',rat])
 
+if buzformat == false
 cd('/analysis/Dayvihd/Synchrony/HrlyNormedSynchrony/AlsoNiceFigures')
+else
+    cd('/analysis/BWRatKetamineDataset/SynchronyFigs')
+end
 savefig(yay, [rat, '.fig'])
 saveas(yay,[rat,'.png'])
 
