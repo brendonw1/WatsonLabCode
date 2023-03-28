@@ -5,7 +5,9 @@ function [ComodAllChn,CFCmeasAllChn] = REM_MultiChannelMultiEpochCFC(...
 %
 % This function saves multi-channel CFC data per infraslow category in the
 % session folder. This is long-duration processing, it may require an
-% overnight run if the number of epochs is high (e.g., > 10 epochs).
+% overnight run if the number of epochs is high (e.g., > 10 epochs).  To be
+% run after REM_CFCsummValues.m as well as REM epoch'ing and infraslow
+% REM_InfraslowPhase.m.  
 %
 % USAGE
 %   - ZscFluct: one-dimensional cell array from pre-saved

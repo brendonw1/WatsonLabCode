@@ -24,7 +24,7 @@ function [board_dig_in_channels,sample_rate] = ...
 
 
 
-% Modified by LSBuenoJr %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Modified by LSBuenoJr 2022 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 path = pwd;
 file = 'info.rhd';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

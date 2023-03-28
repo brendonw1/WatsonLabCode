@@ -4,7 +4,8 @@ function [CentralPhase,CFCstrength] = ...
 % [CentralPhase,CFCstrength] = REM_CFCsummValues(ComodMap,Params,varargin)
 %
 % Summary values from a cross-frequency comodulation map. Values are
-% obtained using a contour matrix. See also REM_CFCmapSubEpoch.
+% obtained using a contour matrix. See also REM_CFCmapSubEpoch.  Can be fun
+% after REM_CFCmap.m
 %
 % USAGE
 %   - ComodMap: comodulation map (amplitude frequencies in dimension 1,
@@ -20,7 +21,7 @@ function [CentralPhase,CFCstrength] = ...
 %
 % OUTPUTS
 %   - CentralPhase: in Hz, phase value at the center of the CFC blob
-%   - CFCstrength:  CFC value of the delimited blob
+%   - CFCstrength:  CFC value at the center of the delimited blob
 %
 % Bueno-Junior et al. (2023)
 

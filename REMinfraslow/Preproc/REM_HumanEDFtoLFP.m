@@ -2,15 +2,16 @@ function REM_HumanEDFtoLFP(varargin)
 %
 % REM_HumanEDFtoLFP(varargin)
 %
-% Expanded from EDFtoLFP by Dr. Brendon O. Watson. Reads human EEG
-% EDF file into buzcode-compliant LFP file with 1250 Hz sampling.
+% Reads human EEG EDF file into buzcode-compliant LFP file with 1250 Hz 
+% sampling. Expanded from EDFtoLFP by Dr. Brendon O. Watson. 
 % Requires XML file to run bz_getSessionInfo (see EDF_XML_template.xml).
 %
 % USAGE
-%   - Run from EDF and XML-containing folder
-%   - varargin: please see input parser section
+%   - Run while matlab is directed to .EDF and .XML-containing folder
+%   - varargin: true/false whether or not to show waitbar (default false)
 %   - Dependencies: buzcode (https://github.com/buzsakilab/buzcode)
-%                   edfread.m
+%                   edfread.m (from WatsonLabDownloadedCode)
+%                       (https://github.com/brendonw1/WatsonLabDownloadedCode/blob/master/edfread/edfread.m)
 %
 % Bueno-Junior et al. (2023)
 

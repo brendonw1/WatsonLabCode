@@ -2,9 +2,9 @@ function REM_EpisodeTrimmer(varargin)
 %
 % REM_EpisodeTrimmer(varargin)
 %
-% Manual trimming of REM epochs based on theta activity and EMG from LFP.
-% Make sure REM epochs from TheStateEditor have 30-60 s margins on both
-% sides prior to running this.
+% GUI-based manual trimming of REM epochs based on theta activity and EMG 
+% from LFP.  Make sure REM epochs from TheStateEditor have 30-60 s margins 
+% on both sides prior to running this.
 %
 % USAGE
 %   - Run from MOUSE_YYMMDD folder containing saved MAT files (see

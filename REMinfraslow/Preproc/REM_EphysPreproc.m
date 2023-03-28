@@ -2,7 +2,7 @@ function REM_EphysPreproc(varargin)
 %
 % REM_EphysPreproc(varargin)
 %
-% Electrophysiology preprocessing pipeline. This will save several MAT
+% Electrophysiology preprocessing pipeline. This will save several .mat
 % files in the session folder: session information, EMG (at two
 % different sampling rates), LFP and sleep scoring.
 %
@@ -13,8 +13,8 @@ function REM_EphysPreproc(varargin)
 %     For example: MOUSE_YYMMDD.dat, MOUSE_YYMMDD.nrs, MOUSE_YYMMDD.xml
 %   - varargin: please see input parser section
 %
-% After running this, use TheStateEditor to adjust WAKE, NREM and
-% REM epochs. It is recommended to include 30-60 s margins per
+% After running this, use TheStateEditor.m (buzcode) to adjust WAKE, NREM 
+% and REM epochs. It is recommended to include 30-60 s margins per
 % episode for later trimming (see REM_EpisodeTrimmer).
 %
 % Bueno-Junior et al. (2023)

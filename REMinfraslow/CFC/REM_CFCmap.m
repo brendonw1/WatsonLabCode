@@ -8,7 +8,8 @@ function [ComodMap,Params] = REM_CFCmap(LFPsubEpoch,varargin)
 %   - LFPsubEpoch: time samples in a column vector, i.e., 1 channel.
 %                  Sub-epoch extracted using timestamps from
 %                  REM_CoarsePhase.
-%   - varargin:    please see input parser section
+%   - varargin:    please see input parser section.  This includes basic
+%   parameters including: Sampling Frequency and others
 %
 % OUTPUTS
 %   - ComodMap: comodulation map (amplitude frequencies in dimension 1,
@@ -22,10 +23,10 @@ function [ComodMap,Params] = REM_CFCmap(LFPsubEpoch,varargin)
 %% Input parser (default parameters)
 p = inputParser;
 
-addParameter(p,'SamplFreq',1250,@isnumeric) % Hz, default buzcode
-addParameter(p,'PhaseFreqRange',[4 12],@isnumeric) % Hz
+addParameter(p,'SamplFreq',1250,@isnumeric) % Hz of LFP sampling, 1250=buzcode default
+addParameter(p,'PhaseFreqRange',[4 12],@isnumeric) % Range of frequencies to check for phase modulation (Hz)
 addParameter(p,'PhaseFreqBins',0.25,@isnumeric) % Hz
-addParameter(p,'AmplitFreqRange',[20 200],@isnumeric) % Hz
+addParameter(p,'AmplitFreqRange',[20 200],@isnumeric) % Range of amplitudes over which to examine phase modulation (Hz)
 addParameter(p,'AmplitFreqBins',5,@isnumeric) % Hz
 
 parse(p,varargin{:})
@@ -50,7 +51,7 @@ end
 
 
 
-%% Comodulation map
+%% Comodulation matrix
 Progress = 0;
 fprintf(1,'Constructing CFC map: %1d%%\n',Progress);
 ComodMap = zeros(length(AmplitAxis)-1,length(FiltPhase));
