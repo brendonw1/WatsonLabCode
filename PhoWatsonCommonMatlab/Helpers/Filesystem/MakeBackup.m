@@ -30,8 +30,9 @@ function [backup_file_fullpath, status] = MakeBackup(sourceFilePath, backupPrefi
 
 	if exist('relativeBackupDestinationPath','var')
 		resolved_backupDestinationPath = fullfile(parentSourcePath, relativeBackupDestinationPath);
-		if ~exist(relativeBackupDestinationPath,'dir')
-			error('relativeBackupDestinationPath specified but does not exist!');
+		if ~exist(resolved_backupDestinationPath,'dir')
+			mkdir(resolved_backupDestinationPath);
+            %error('relativeBackupDestinationPath specified but does not exist!');
 		end
 		backup_file_fullpath = fullfile(resolved_backupDestinationPath, backup_file_name);
 

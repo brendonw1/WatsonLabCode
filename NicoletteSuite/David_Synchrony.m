@@ -46,7 +46,7 @@ FiringRateCurve;
 
 %% Now let's create a simple spikemat!
 % Let's first create a binsize :)
-binsize = 5;
+binsize = 10;
 if ~exist('spikemat','var')
      spikemat = dv_SpktToSpkmat(allspikecells, binsize);
 end

@@ -1,4 +1,7 @@
 %The one hour bin based on index and not times
+%Say that you have an LFP or something that you know is sampled at 1kHz or
+%.001s bins, yeah? You would most likely wanna use this if you wanna bin
+%that LFP per hour, you kinda get why 
 
 function [newdata] = binbasedonindex(data,startbinlength,finalbinlength)
     % how long is each bin?

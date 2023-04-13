@@ -34,8 +34,8 @@ end
 basename = rat;
 
 % spikes = bz_GetSpikes('basepath',basepath);
-spikes.UID = {};
 DavidGetSpikes; %makes allspikecells
+spikes.UID = {}
 lolscript; % makes Cellclass
 % states = bz_LoadStates(basepath,'SleepState');
 ints = makeints(basename);
@@ -106,7 +106,7 @@ numIcells = sum(CellClass.pI);
 %end
 
 % [spikemat] = bz_SpktToSpkmat(spikes, 'binsize',binwidthsecs,'dt',binwidthsecs);
-spikemat = dv_SpktToSpkmat(allspikecells,binwidthsecs);
+spikemat = dv_SpktToSpkmat(allspikecells,binwidthsecs)';
 bincenters = 1:binwidthsecs:length(spikemat)*binwidthsecs;
 binstarts = bincenters-(binwidthsecs*0.5);
 binends = bincenters+(binwidthsecs*0.5);
@@ -175,9 +175,9 @@ if plotting
 %     m = Data(m);
 %     m(isnan(m))=0;
 %     m = smooth(m,smoothingnumpoints);
-    if ~isempty(spikes.UID)
-        m = ResampleTolerant(m,length(bincenters),length(m));
-    
+    if 1%~isempty(spikes.UID)
+%         m = ResampleTolerant(m,length(bincenters),length(m));
+%     
 %     figname = [basename '_EIRatioBin' num2str(binwidthsecs) 'Smooth' num2str(smoothingnumpoints) 'Norm' normstring];
     figname = [basename '_EIRatioBin' num2str(binwidthsecs) 'Smooth' num2str(smoothingnumpoints)];
     h = figure('position',[100 100 600 600],'name',figname);
