@@ -1,13 +1,16 @@
-function RewriteGroupsAsDats(basepath,outputnamespecifiers)
+function RewriteGroupsAsDats(fullpath,outputnamespecifiers)
 
-if ~exist('basepath','var')
+if ~exist('fullpath','var')
     basepath = cd;
     disp('Assuming current directory is basepath');
+    basename = bz_BasenameFromBasepath(basepath);
+else
+    [basepath, basename]= fileparts(fullpath);
 end
 
-basename = bz_BasenameFromBasepath(basepath);
 xmlname = fullfile(basepath,[basename '.xml']);
 datname = fullfile(basepath,[basename '.dat']);
+markername = fullfile(basepath,'GroupsAsDatsDone.marker');
 
 
 
@@ -61,8 +64,8 @@ end
 numsamps = floor(numsamps);%account for possible non-integer numbers of samples
 fseek(fidr,0,'bof');
 for a = 1:numsamps
-    if a == 1 || mod(a,10000000) == 0
-        disp(['Writing sample ' num2str(a) ' out of ' num2str(numsamps)])
+    if a == 1 || mod(a,100000) == 0
+        disp(['Writing sample ' num2str(a) ' out of ' num2str(numsamps) ' to all output files simultaneously'])
     end
     rawsamps = fread(fidr,numchans,'int16');%read numchans number of 16bit chunks - one time sample
     for b = 1:ngroups
@@ -76,3 +79,6 @@ fclose(fidr);
 for a = 1:ngroups
     fclose(fidw{a});
 end
+
+%% Leave marker that job was already done
+eval(['!touch ' markername])
