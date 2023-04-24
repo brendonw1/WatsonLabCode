@@ -1,5 +1,7 @@
 function [disone,fraxis,thisspec,freq] = SimpleSpectro(signal,fs,freqrange)
-    %SIMPLESPECTRO basically spits out a spectrogram given a signal, sampling
+    %SIMPLESPECTRO basically spits out a spectrum (I accidentally named it 
+    %after a spectrogram, and yes, I'm embarrased, so let's just drop it,
+    % okay?) given a signal, sampling
     %rate, which is fs, and a frequency range that you wanna plot
     % to keep things simpler, make sure that freqrange is an integer
     % thisspec is the entire frequency range by the way.
