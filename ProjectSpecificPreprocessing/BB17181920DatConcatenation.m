@@ -1,13 +1,31 @@
 function BB17181920DatConcatenation(EphysDirPath,OutputDirPath,DatName)
-
+% BB17181920DatConcatenation(EphysDirPath,OutputDirPath,DatName)
+% Collects all recordings in Intan-generated subfolders of EphysDirPath, 
+% then makes new .dats for each spike group in the files.  Then it
+% concatenates all the spike-group dats over time (alphabetical by folder
+% name, which should be chronological).
+% 
+% INPUTS
+% EphysDirPath - where the initial Intan-generated data is (default =
+% current directory)
+% 
+% OutputDirPath - Path where newly generated concatenated dats will be
+% placed (default = EphysDirName_ConcatenatedGroupDats)
+% 
+% DatName - default .dat name in original intan folders (Default =
+% amplifier.dat)
+% 
+% Important Notes:
+% April 2023: currently requires one .xml per recording folder (ie
+% amplifier.xml next to amplifier.dat).  Feel free to change that if
+% desired.
+% Assumes all recordings have the same groups in them.
+%
+% Brendon Watson 2023
 
 %% Establish variables 
 if ~exist('EphysDirPath','var')
     EphysDirPath = cd;
-end
-
-if ~exist('DatName','var')
-    DatName = 'amplifier.dat';
 end
 
 if ~exist('OutputDirPath','var')%set default output location parallel to EphysDirPath
@@ -15,6 +33,10 @@ if ~exist('OutputDirPath','var')%set default output location parallel to EphysDi
     slashes = strfind(EphysDirPath,'/');
     output = EphysDirPath(1:slashes(end)-1);%cut after last slash to specifiy up one folder
     OutputDirPath = fullfile(output,[EphysDirName, '_ConcatenatedGroupDats']);
+end
+
+if ~exist('DatName','var')
+    DatName = 'amplifier.dat';
 end
 
 if ~exist(OutputDirPath,'dir')
@@ -27,7 +49,7 @@ sds =listallsubdirs(EphysDirPath);
 for sidx = length(sds):-1:1 %loop: exclude directories without DatName inside
     filecontents = dir(sds{sidx});
     foundfiles = zeros(1,length(filecontents));%reset each loop
-    for fidx = 1:length(filecontents);
+    for fidx = 1:length(filecontents)
         foundfiles(fidx) = strcmp(filecontents(fidx).name,DatName);
     end
     if sum(foundfiles)==0
