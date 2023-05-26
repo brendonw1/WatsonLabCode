@@ -94,7 +94,7 @@ for FrameIdx = 1:NumFrames
     EyePupilData{FrameIdx,3} = [OctPolygon;OctPolygon(1,:)];
     
     % Pupil "diameter", distance between east (3) and west (7) labels) ____
-    AbsDiff = abs(diff(EyePupilData{FrameIdx,1}([3 7],:),1,1));
+    AbsDiff = abs(diff(EyePupilData{FrameIdx,3}([3 7],:),1,1));
     EyePupilData{FrameIdx,4} = hypot(AbsDiff(1),AbsDiff(2));
     
     % Pupil north label (to calculate pupil speed) ________________________
