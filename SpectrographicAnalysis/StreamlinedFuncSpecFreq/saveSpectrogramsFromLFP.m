@@ -38,10 +38,14 @@ function specs = saveSpectrogramsFromLFP(basepath, lfpFile, channels, nCh, fs, n
     StateInfo.fspec = StateInfo.fspec.';
 
     % Save the spectrograms information
-    eegstatesname = fullfile(basepath, [baseName '.eegstates.mat']);
+    eegstatesname = fullfile(basepath, [baseName '.eegStatesStreamlined.mat']);
     save(eegstatesname, 'StateInfo');
     
     specs = SaveSpectrogramsAsStruct(StateInfo);
+
+    % Save the spectrograms information
+    spec_files = fullfile(basepath, [baseName '.specs.mat']);
+    save(spec_files, 'specs');
 end
 
 function eeg1 = loadLFPData(basePath, baseName, suffix, Chs, nCh)

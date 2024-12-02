@@ -1,4 +1,4 @@
-function specs = SaveSpectrogramsFromEegStates(input);
+function specs = SaveSpectrogramsAsStruct(input);
 
 StateInfo = input; 
 
