@@ -45,11 +45,6 @@ function SpectralFreqInator()
     highFreqField = uieditfield(fig, 'numeric', 'Position', [350, 170, 80, 22], ...
         'Value', 200, 'Limits', [0 Inf]);
     
-    % Suffix
-    suffixLabel = uilabel(fig, 'Position', [10, 140, 100, 22], 'Text', 'Suffix:');
-    suffixField = uieditfield(fig, 'text', 'Position', [120, 140, 250, 22], ...
-        'Value', '.lfp');
-    
     % Output Path
     outputPathLabel = uilabel(fig, 'Position', [10, 110, 100, 22], 'Text', 'Output Path:');
     outputPathField = uieditfield(fig, 'text', 'Position', [120, 110, 350, 22], ...
@@ -61,7 +56,7 @@ function SpectralFreqInator()
     runButton = uibutton(fig, 'Position', [250, 60, 100, 30], 'Text', 'Run', ...
         'ButtonPushedFcn', @(btn, event) runFunction(fig, lfpFileField, channelsList, ...
         channelsInputField, nChField, fsField, nFFTField, lowFreqField, highFreqField, ...
-        suffixField, outputPathField));
+        outputPathField));
 end
 
 function selectFile(lfpFileField, fig)
@@ -86,7 +81,7 @@ function updateChannelList(channelsList, numChannels)
     channelsList.Items = arrayfun(@num2str, 1:numChannels, 'UniformOutput', false);
 end
 
-function runFunction(fig, lfpFileField, channelsList, channelsInputField, nChField, fsField, nFFTField, lowFreqField, highFreqField, suffixField, outputPathField)
+function runFunction(fig, lfpFileField, channelsList, channelsInputField, nChField, fsField, nFFTField, lowFreqField, highFreqField, outputPathField)
     % Get the values from the UI fields
     lfpFile = lfpFileField.Value;
     
@@ -101,11 +96,10 @@ function runFunction(fig, lfpFileField, channelsList, channelsInputField, nChFie
     fs = fsField.Value;
     nFFT = nFFTField.Value;
     fRange = [lowFreqField.Value, highFreqField.Value];
-    suffix = suffixField.Value;
     outputpath = outputPathField.Value;
     
     % Call the function with the input parameters
-    specs = saveSpectrogramsFromLFP(outputpath, lfpFile, channels, nCh, fs, nFFT, fRange, suffix);
+    specs = saveSpectrogramsFromLFP(outputpath, lfpFile, channels, nCh, fs, nFFT, fRange);
     
     disp('Completely done now');
     % Display a message or perform additional actions if needed
@@ -128,7 +122,7 @@ end
 
 %% The Rest (mwahahahaha daunting)
 
-function specs = saveSpectrogramsFromLFP(basepath, lfpFile, channels, nCh, fs, nFFT, fRange, suffix)
+function specs = saveSpectrogramsFromLFP(outputpath, lfpFile, channels, nCh, fs, nFFT, fRange)
     % basepath: the directory path for saving the output
     % lfpFile: .lfp file containing the data
     % channels: vector of channels to process
@@ -139,6 +133,8 @@ function specs = saveSpectrogramsFromLFP(basepath, lfpFile, channels, nCh, fs, n
     % suffix: suffix for the filename
     
     [~, baseName, ~] = fileparts(lfpFile);
+    [basepath, ~, ~] = fileparts(lfpFile);
+    [~, ~, suffix] = fileparts(lfpFile);
     eeg1 = loadLFPData(basepath, baseName, suffix, channels, nCh);
 
     % Initialize StateInfo structure to store spectrogram info
@@ -168,13 +164,13 @@ function specs = saveSpectrogramsFromLFP(basepath, lfpFile, channels, nCh, fs, n
     StateInfo.fspec = StateInfo.fspec.';
 
     % Save the spectrograms information
-    eegstatesname = fullfile(basepath, [baseName '.eegStatesStreamlined.mat']);
+    eegstatesname = fullfile(outputpath, [baseName '.eegStatesStreamlined.mat']);
     save(eegstatesname, 'StateInfo');
     
     specs = SaveSpectrogramsAsStruct(StateInfo);
 
     % Save the spectrograms information
-    spec_files = fullfile(basepath, [baseName '.specs.mat']);
+    spec_files = fullfile(outputpath, [baseName '.specs.mat']);
     save(spec_files, 'specs');
 
 end

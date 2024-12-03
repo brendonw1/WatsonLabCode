@@ -1,4 +1,4 @@
-function specs = saveSpectrogramsFromLFP(basepath, lfpFile, channels, nCh, fs, nFFT, fRange, suffix)
+function [specs, baseName] = saveSpectrogramsFromLFP(outputpath, lfpFile, channels, nCh, fs, nFFT, fRange)
     % basepath: the directory path for saving the output
     % lfpFile: .lfp file containing the data
     % channels: vector of channels to process
@@ -9,6 +9,8 @@ function specs = saveSpectrogramsFromLFP(basepath, lfpFile, channels, nCh, fs, n
     % suffix: suffix for the filename
     
     [~, baseName, ~] = fileparts(lfpFile);
+    [basepath, ~, ~] = fileparts(lfpFile);
+    [~, ~, suffix] = fileparts(lfpFile);
     eeg1 = loadLFPData(basepath, baseName, suffix, channels, nCh);
 
     % Initialize StateInfo structure to store spectrogram info
@@ -38,13 +40,13 @@ function specs = saveSpectrogramsFromLFP(basepath, lfpFile, channels, nCh, fs, n
     StateInfo.fspec = StateInfo.fspec.';
 
     % Save the spectrograms information
-    eegstatesname = fullfile(basepath, [baseName '.eegStatesStreamlined.mat']);
+    eegstatesname = fullfile(outputpath, [baseName '.eegStatesStreamlined.mat']);
     save(eegstatesname, 'StateInfo');
     
     specs = SaveSpectrogramsAsStruct(StateInfo);
 
     % Save the spectrograms information
-    spec_files = fullfile(basepath, [baseName '.specs.mat']);
+    spec_files = fullfile(outputpath, [baseName '.specs.mat']);
     save(spec_files, 'specs');
 end
 
