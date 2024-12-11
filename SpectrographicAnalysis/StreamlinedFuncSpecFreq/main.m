@@ -12,4 +12,5 @@ outputpath = '/Users/noahmuscat/Desktop';
 
 [specs, baseName] = saveSpectrogramsFromLFP(outputpath, lfpFile, channels, nCh, fs, nFFT, fRange);
 %% testing
-[bands, epochs] = PowerFreqFromSpecFreqInator(specs, 1);
+specs = load('/Users/noahmuscat/University of Michigan Dropbox/Noah Muscat/StateEditorStuff/Canute_231208.specs.mat');
+[bands, epochs] = PowerFreqFromSpecFreqInator(specs.specs, 1);
