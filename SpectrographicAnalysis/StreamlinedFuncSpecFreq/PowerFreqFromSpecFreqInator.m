@@ -8,10 +8,6 @@ function [bands, epochs] = PowerFreqFromSpecFreqInator(specs, lightsOnTime)
     if ~isstruct(specs)
         error('Input specs must be a struct array.');
     end
-    
-    if length(specs) ~= 2
-        error('Input specs must be a 1x2 struct array.');
-    end
 
     requiredFields = {'spec', 'freqs', 'times'};
     for i = 1:length(specs)
@@ -164,11 +160,12 @@ function [bands, epochs] = PowerFreqFromSpecFreqInator(specs, lightsOnTime)
     %% Plotting
     figs = [];
     % Power vs. Time
-    for a = 1:length(specs)  % for each channel
+    for a = 1:length(specs)
+        close all; % Ensure previous plots are closed
         ttitle = ['Channel ' num2str(a) ' Power Vs Time'];
         figs(end+1) = figure('Name', ttitle, 'Position', [100, 100, 1200, 800]);
         plotcounter = 0;
-        for b = 1:length(bandnames) % for every band
+        for b = 1:length(bandnames)
             tbandname = bandnames{b};
             tband = bands.(tbandname);
             plotcounter = plotcounter + 1;
