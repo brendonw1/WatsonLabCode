@@ -30,7 +30,8 @@ end
 
 if ~exist('OutputDirPath','var')%set default output location parallel to EphysDirPath
     [~,EphysDirName] = fileparts(EphysDirPath);
-    slashes = strfind(EphysDirPath,'/');
+    %slashes = strfind(EphysDirPath,'/'); %Linux version
+    slashes = strfind(EphysDirPath,'\');
     output = EphysDirPath(1:slashes(end)-1);%cut after last slash to specifiy up one folder
     OutputDirPath = fullfile(output,[EphysDirName, '_ConcatenatedGroupDats']);
 end
@@ -63,7 +64,8 @@ for sidx = 1:length(sds)
     if exist(markername,'file')
         disp([sds{sidx} ' already has groups written as dats, skipping'])
     else
-        RewriteGroupsAsDats(fullfile(sds{sidx},'amplifier.dat'))
+        RewriteGroupsAsDats(fullfile(sds{sidx},'amplifier.dat'), 'X:\Ephys\test files exp 4\amplifier.xml')
+        disp('done')
     end
 end
 

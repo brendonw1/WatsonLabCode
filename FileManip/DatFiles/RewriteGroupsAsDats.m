@@ -1,4 +1,4 @@
-function RewriteGroupsAsDats(fullpath,outputnamespecifiers)
+function RewriteGroupsAsDats(fullpath, xmlname, outputnamespecifiers)
 
 if ~exist('fullpath','var')
     basepath = cd;
@@ -8,10 +8,20 @@ else
     [basepath, basename]= fileparts(fullpath);
 end
 
-xmlname = fullfile(basepath,[basename '.xml']);
+if ~exist('xmlname','var')
+    % List all .xml files in the current directory
+    xmlFiles = dir(fullfile(basepath, '*.xml')); 
+    
+    % Ensure there is exactly one XML file
+    if numel(xmlFiles) == 1
+        xmlname = fullfile(basepath, xmlFiles(1).name);  % Get the full path to the XML file
+        disp(['Found XML file: ', xmlname]);  % Display the XML file path
+    else
+        error('There must be exactly one XML file in the current directory. Found %d.', numel(xmlFiles));
+    end
+end
 datname = fullfile(basepath,[basename '.dat']);
 markername = fullfile(basepath,'GroupsAsDatsDone.marker');
-
 
 
 %% Get channel groups and other info from xml
